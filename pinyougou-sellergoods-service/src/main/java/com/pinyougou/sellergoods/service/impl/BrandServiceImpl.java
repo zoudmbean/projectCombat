@@ -1,6 +1,7 @@
 package com.pinyougou.sellergoods.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -70,6 +71,11 @@ public class BrandServiceImpl implements BrandService{
 	@Override
 	public void delete(Long[] ids) {
 		brandMapper.delByIds(ids);
+	}
+
+	@Override
+	public List<Map<Long, String>> selectOptions() {
+		return brandMapper.selectOptions();
 	}
 
 }

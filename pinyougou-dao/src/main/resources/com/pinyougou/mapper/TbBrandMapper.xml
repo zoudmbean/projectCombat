@@ -189,4 +189,9 @@
   		);
   </delete>
   
+  <!-- 查询品牌数据 -->
+  <select id="selectOptions" resultType="map">
+  	select id , name text from tb_brand
+  </select>
+  
 </mapper>

@@ -1,6 +1,7 @@
 package com.pinyougou.manager.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -99,6 +100,11 @@ public class BrandController {
 			e.printStackTrace();
 			return new Result(false, "删除失败！");
 		}
+	}
+	
+	@RequestMapping("/selectOptionList")
+	public List<Map<Long, String>> selectOptionList(){
+		return brandService.selectOptions();
 	}
 	
 }
