@@ -99,7 +99,23 @@ public class ItemCatController {
 		}
 	}
 	
-		/**
+	/**
+	 * 批量删除
+	 * @param ids
+	 * @return
+	 */
+	@RequestMapping("/deleSelfAndChildren")
+	public Result deleSelfAndChildren(Long [] ids){
+		try {
+			itemCatService.deleSelfAndChildren(ids);
+			return new Result(true, "删除成功"); 
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Result(false, "删除失败");
+		}
+	}
+	
+	/**
 	 * 查询+分页
 	 * @param brand
 	 * @param page
@@ -109,6 +125,15 @@ public class ItemCatController {
 	@RequestMapping("/search")
 	public PageResult search(@RequestBody TbItemCat itemCat, int page, int rows  ){
 		return itemCatService.findPage(itemCat, page, rows);		
+	}
+	
+	/** 查询下级分类列表
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping("/findByParentId")
+	public List<TbItemCat> findByParentId(Long parentId){
+		return itemCatService.findByParentId(parentId);
 	}
 	
 }

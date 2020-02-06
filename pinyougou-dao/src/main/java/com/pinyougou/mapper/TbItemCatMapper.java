@@ -11,6 +11,8 @@ public interface TbItemCatMapper {
     int deleteByExample(TbItemCatExample example);
 
     int deleteByPrimaryKey(Long id);
+    
+    int deleSelfAndChildren(@Param("id") Long id);
 
     int insert(TbItemCat record);
 

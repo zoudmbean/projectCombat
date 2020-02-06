@@ -1,5 +1,10 @@
 package com.pinyougou.sellergoods.service.impl;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.swing.text.Highlighter.Highlight;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
@@ -109,7 +114,7 @@ public class SellerServiceImpl implements SellerService {
 				criteria.andTelephoneLike("%"+seller.getTelephone()+"%");
 			}
 			if(seller.getStatus()!=null && seller.getStatus().length()>0){
-				criteria.andStatusLike("%"+seller.getStatus()+"%");
+				criteria.andStatusEqualTo(seller.getStatus());
 			}
 			if(seller.getAddressDetail()!=null && seller.getAddressDetail().length()>0){
 				criteria.andAddressDetailLike("%"+seller.getAddressDetail()+"%");
@@ -153,11 +158,18 @@ public class SellerServiceImpl implements SellerService {
 			if(seller.getBankName()!=null && seller.getBankName().length()>0){
 				criteria.andBankNameLike("%"+seller.getBankName()+"%");
 			}
-	
 		}
 		
 		Page<TbSeller> page= (Page<TbSeller>)sellerMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
+
+		@Override
+		public void updateStatus(String sellerId, String status) {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("status", status);
+			map.put("sellerId", sellerId);
+			sellerMapper.updateStatus(map);
+		}
 	
 }

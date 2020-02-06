@@ -25,4 +25,9 @@ app.service('typeTemplateService',function($http){
 	this.dele=function(ids){
 		return $http.get('../typeTemplate/delete.do?ids='+ids);
 	}
+	
+	// 查询模板类型
+	this.findTypeTemplates = function(){
+		return $http.get("../typeTemplate/findTypeTemplates.do");
+	}
 });

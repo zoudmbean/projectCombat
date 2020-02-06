@@ -1,5 +1,5 @@
  //控制层 
-app.controller('sellerController' ,function($scope,$controller   ,sellerService){	
+app.controller('sellerController' ,function($scope,$controller,sellerService){	
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -14,7 +14,7 @@ app.controller('sellerController' ,function($scope,$controller   ,sellerService)
 	
 	//分页
 	$scope.findPage=function(page,rows){			
-		sellerService.findPage(page,rows).success(
+		sellerService.findPage(page,rows,$scope.seachEntity).success(
 			function(response){
 				$scope.list=response.rows;	
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
@@ -65,16 +65,18 @@ app.controller('sellerController' ,function($scope,$controller   ,sellerService)
 		);				
 	}
 	
-	$scope.searchEntity={};//定义搜索对象 
-	
-	//搜索
-	$scope.search=function(page,rows){			
-		sellerService.search(page,rows,$scope.searchEntity).success(
-			function(response){
-				$scope.list=response.rows;	
-				$scope.paginationConf.totalItems=response.total;//更新总记录数
-			}			
-		);
+	// 更新状态
+	$scope.updateStatus=function(sellerId,status){			
+		//获取选中的复选框			
+		sellerService.updateStatus(status,sellerId).success(
+				function(response){
+					if(response.success){
+						$scope.reloadList();
+					} else {
+						alert(response.message);
+					}						
+				}		
+		);				
 	}
     
 });	

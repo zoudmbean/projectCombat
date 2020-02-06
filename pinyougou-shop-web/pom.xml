@@ -9,6 +9,18 @@
   <packaging>war</packaging>
   
   <dependencies>
+  	
+  	<dependency>
+		<groupId>com.pinyougou</groupId>
+		<artifactId>pinyougou-sellergoods-interface</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</dependency>
+	<dependency>
+		<groupId>com.pinyougou</groupId>
+		<artifactId>pinyougou-common</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</dependency>
+  
     <!-- Spring -->
 	<dependency>
 		<groupId>org.springframework</groupId>
@@ -42,6 +54,18 @@
 		<groupId>org.springframework</groupId>
 		<artifactId>spring-test</artifactId>
 	</dependency>
+	
+	<!-- 添加SpringSecutiry依赖 -->
+	<dependency>
+		<groupId>org.springframework.security</groupId>
+		<artifactId>spring-security-web</artifactId>
+	</dependency>
+
+	<dependency>
+		<groupId>org.springframework.security</groupId>
+		<artifactId>spring-security-config</artifactId>
+	</dependency>
+	
 	<!-- dubbo相关 -->
 	<dependency>
 		<groupId>com.alibaba</groupId>
@@ -76,8 +100,13 @@
 		<artifactId>servlet-api</artifactId>		
 		<scope>provided</scope>
 	</dependency>
-  
 
+	<!-- 文件上传组件 -->
+	<dependency>
+		<groupId>commons-fileupload</groupId>
+		<artifactId>commons-fileupload</artifactId>
+	</dependency>
+	
   </dependencies>
   
   

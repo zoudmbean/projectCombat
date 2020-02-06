@@ -78,6 +78,16 @@ public class ItemCatServiceImpl implements ItemCatService {
 		}		
 	}
 	
+	/**
+	 * 批量删除
+	 */
+	@Override
+	public void deleSelfAndChildren(Long[] ids) {
+		for(Long id:ids){
+			itemCatMapper.deleSelfAndChildren(id);
+		}		
+	}
+	
 	
 		@Override
 	public PageResult findPage(TbItemCat itemCat, int pageNum, int pageSize) {
@@ -95,6 +105,13 @@ public class ItemCatServiceImpl implements ItemCatService {
 		
 		Page<TbItemCat> page= (Page<TbItemCat>)itemCatMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
+	}
+
+	@Override
+	public List<TbItemCat> findByParentId(Long parentId) {
+		TbItemCatExample example = new TbItemCatExample();
+		example.createCriteria().andParentIdEqualTo(parentId);
+		return itemCatMapper.selectByExample(example );
 	}
 	
 }

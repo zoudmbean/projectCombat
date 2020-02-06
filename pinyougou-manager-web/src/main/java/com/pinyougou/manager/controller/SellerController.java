@@ -1,4 +1,5 @@
 package com.pinyougou.manager.controller;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,8 +38,8 @@ public class SellerController {
 	 * @return
 	 */
 	@RequestMapping("/findPage")
-	public PageResult  findPage(int page,int rows){			
-		return sellerService.findPage(page, rows);
+	public PageResult  findPage(@RequestBody TbSeller seller, int page,int rows){			
+		return sellerService.findPage(seller,page, rows);
 	}
 	
 	/**
@@ -80,7 +81,13 @@ public class SellerController {
 	 */
 	@RequestMapping("/findOne")
 	public TbSeller findOne(String id){
-		return sellerService.findOne(id);		
+		TbSeller findOne = null;
+		try {
+			findOne = sellerService.findOne(new String(id.getBytes("ISO-8859-1")));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}	
+		return findOne;
 	}
 	
 	/**
@@ -99,16 +106,20 @@ public class SellerController {
 		}
 	}
 	
-		/**
-	 * 查询+分页
-	 * @param brand
-	 * @param page
-	 * @param rows
+	/**
+	 * @param sellerId
+	 * @param status
 	 * @return
 	 */
-	@RequestMapping("/search")
-	public PageResult search(@RequestBody TbSeller seller, int page, int rows  ){
-		return sellerService.findPage(seller, page, rows);		
+	@RequestMapping("/updateStatus")
+	public Result updateStatus(String sellerId, String status){
+		try {
+			sellerService.updateStatus(new String(sellerId.getBytes("ISO-8859-1")), status);
+			return new Result(true, "审核成功"); 
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Result(false, "审核失败");
+		}
 	}
 	
 }

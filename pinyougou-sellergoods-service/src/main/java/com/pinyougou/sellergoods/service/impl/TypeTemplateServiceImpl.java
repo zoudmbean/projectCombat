@@ -1,13 +1,23 @@
 package com.pinyougou.sellergoods.service.impl;
 import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSONArray;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.pinyougou.mapper.TbSpecificationOptionMapper;
 import com.pinyougou.mapper.TbTypeTemplateMapper;
+import com.pinyougou.pojo.TbSpecificationOption;
+import com.pinyougou.pojo.TbSpecificationOptionExample;
 import com.pinyougou.pojo.TbTypeTemplate;
 import com.pinyougou.pojo.TbTypeTemplateExample;
 import com.pinyougou.pojo.TbTypeTemplateExample.Criteria;
+import com.pinyougou.sellergoods.service.SpecificationOptionService;
+import com.pinyougou.sellergoods.service.SpecificationService;
 import com.pinyougou.sellergoods.service.TypeTemplateService;
 
 import entity.PageResult;
@@ -17,7 +27,7 @@ import entity.PageResult;
  * @author Administrator
  *
  */
-@Service
+@Service(timeout = 100000)
 public class TypeTemplateServiceImpl implements TypeTemplateService {
 
 	@Autowired
@@ -105,5 +115,32 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 		Page<TbTypeTemplate> page= (Page<TbTypeTemplate>)typeTemplateMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
+
+		@Override
+		public List<Map<Long,String>> findTypeTemplates() {
+			return typeTemplateMapper.findTypeTemplates();
+		}
+		
+		@Resource
+		private TbSpecificationOptionMapper specificationOptionMapper;
+
+		@Override
+		public List<Map> findSpecList(Long id) {
+			// 根据模板id，查询模板对象
+			TbTypeTemplate typeTemplate = typeTemplateMapper.selectByPrimaryKey(id);
+			
+			// 获取模板规格
+			String specIds = typeTemplate.getSpecIds();
+			// [{"id":26,"text":"尺码"},{"id":32,"text":"机身内存"},{"id":34,"text":"内存容量"},{"id":33,"text":"电视屏幕尺寸"},{"id":27,"text":"网络"}]
+			List<Map> specList = JSONArray.parseArray(specIds, Map.class);
+			for(Map m : specList){
+				TbSpecificationOptionExample example = new TbSpecificationOptionExample();
+				example.createCriteria().andSpecIdEqualTo(((Integer)m.get("id")).longValue());
+				// 根据map的id，获取所有规格
+				List<TbSpecificationOption> options = specificationOptionMapper.selectByExample(example );
+				m.put("options", options);
+			}
+			return specList;
+		}
 	
 }

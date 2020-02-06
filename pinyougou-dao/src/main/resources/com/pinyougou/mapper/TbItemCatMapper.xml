@@ -193,4 +193,9 @@
       type_id = #{typeId,jdbcType=BIGINT}
     where id = #{id,jdbcType=BIGINT}
   </update>
+  
+  <delete id="deleSelfAndChildren" parameterType="long">
+  	delete from tb_item_cat where id=#{id} or parent_id=#{id}
+  </delete>
+  
 </mapper>
