@@ -3,6 +3,8 @@ package com.pinyougou.mapper;
 import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.pojo.TbGoodsExample;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface TbGoodsMapper {
@@ -27,4 +29,19 @@ public interface TbGoodsMapper {
     int updateByPrimaryKeySelective(TbGoods record);
 
     int updateByPrimaryKey(TbGoods record);
+
+	/**审核与驳回
+	 * @param map
+	 */
+	void updateAuditStatus(Map<String, Object> map);
+
+	/**删除商品
+	 * @param ids
+	 */
+	void deleGoods(@Param("ids") Long[] ids);
+
+	/** 商品上下架
+	 * @param goods
+	 */
+	void updateMaeketable(TbGoods goods);
 }

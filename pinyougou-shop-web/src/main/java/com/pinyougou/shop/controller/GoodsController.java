@@ -39,8 +39,10 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/findPage")
-	public PageResult  findPage(int page,int rows){			
-		return goodsService.findPage(page, rows);
+	public PageResult  findPage(@RequestBody TbGoods goods,int page,int rows){	
+		String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
+		goods.setSellerId(sellerId);
+		return goodsService.findPage(goods,page, rows);
 	}
 	
 	/**
@@ -63,12 +65,39 @@ public class GoodsController {
 	}
 	
 	/**
+	 * 上下架
+	 * @param goods
+	 * @return
+	 */
+	@RequestMapping("/updateMarket")
+	public Result updateMarket(@RequestBody TbGoods goods,String status){
+		try {
+			goods.setIsMarketable(status);
+			goodsService.updateMaeketable(goods);
+			return new Result(true, "操作成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Result(false, "操作失败");
+		}
+	}
+	
+	/**
 	 * 修改
 	 * @param goods
 	 * @return
 	 */
 	@RequestMapping("/update")
-	public Result update(@RequestBody TbGoods goods){
+	public Result update(@RequestBody Goods goods){
+		
+		// 修改之前做一下判断，只有被修改的商品是当前登录用户的商品才能修改
+		String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
+		//校验是否是当前商家的id		
+		Goods goods2 = goodsService.findOne(goods.getGoods().getId());
+
+		if(!goods.getGoods().getSellerId().equals(sellerId) || !goods2.getGoods().getSellerId().equals(sellerId)){
+			return new Result(false, "非法操作！");
+		}
+		
 		try {
 			goodsService.update(goods);
 			return new Result(true, "修改成功");
@@ -84,7 +113,7 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/findOne")
-	public TbGoods findOne(Long id){
+	public Goods findOne(Long id){
 		return goodsService.findOne(id);		
 	}
 	
@@ -102,18 +131,6 @@ public class GoodsController {
 			e.printStackTrace();
 			return new Result(false, "删除失败");
 		}
-	}
-	
-		/**
-	 * 查询+分页
-	 * @param brand
-	 * @param page
-	 * @param rows
-	 * @return
-	 */
-	@RequestMapping("/search")
-	public PageResult search(@RequestBody TbGoods goods, int page, int rows  ){
-		return goodsService.findPage(goods, page, rows);		
 	}
 	
 }

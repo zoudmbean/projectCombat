@@ -1,5 +1,5 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller   ,goodsService){	
+app.controller('goodsController' ,function($scope,$controller,goodsService,itemCatService){	
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -14,7 +14,7 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 	
 	//分页
 	$scope.findPage=function(page,rows){			
-		goodsService.findPage(page,rows).success(
+		goodsService.findPage($scope.seachEntity,page,rows).success(
 			function(response){
 				$scope.list=response.rows;	
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
@@ -53,28 +53,47 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 	
 	 
 	//批量删除 
-	$scope.dele=function(){			
-		//获取选中的复选框			
-		goodsService.dele( $scope.selectIds ).success(
-			function(response){
-				if(response.success){
-					$scope.reloadList();//刷新列表
-					$scope.selectIds=[];
-				}						
-			}		
-		);				
+	$scope.dele=function(){		
+		if($scope.selectIds && $scope.selectIds.length > 0){
+			//获取选中的复选框			
+			goodsService.deleGoods( $scope.selectIds ).success(
+				function(response){
+					if(response.success){
+						$scope.reloadList();//刷新列表
+						$scope.selectIds=[];
+					}						
+				}		
+			);				
+		} else {
+			alert("请选择要删除的行！");
+		}
 	}
 	
-	$scope.searchEntity={};//定义搜索对象 
+	/*
+	 * 定义数组，记录状态信息
+	 * */
+	$scope.status=['未审核','已审核','审核未通过','关闭'];//商品状态
 	
-	//搜索
-	$scope.search=function(page,rows){			
-		goodsService.search(page,rows,$scope.searchEntity).success(
-			function(response){
-				$scope.list=response.rows;	
-				$scope.paginationConf.totalItems=response.total;//更新总记录数
-			}			
-		);
+	// 查询分类信息
+	$scope.itemCatList = [];
+	$scope.getitemCatList = function(){
+		itemCatService.findAll().success(function(response) {
+			for(var i = 0 ; i < response.length ; i ++ ){
+				$scope.itemCatList[response[i].id] = response[i].name;
+			}
+		});
+	} 
+	
+	$scope.updateAuditStatus = function(status) {
+		goodsService.updateAuditStatus($scope.selectIds,status).success(function(res) {
+			if(res.success){
+				alert(res.message);
+				$scope.reloadList();//重新加载
+				$scope.selectIds = [];
+			} else {
+				alert(res.message);
+			}
+		});
 	}
     
 });	

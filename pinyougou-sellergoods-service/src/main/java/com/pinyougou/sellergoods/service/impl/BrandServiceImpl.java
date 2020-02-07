@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.alibaba.dubbo.config.annotation.Service;
@@ -25,6 +26,7 @@ import entity.Result;
  *
  */
 @Service
+@Transactional
 public class BrandServiceImpl implements BrandService{
 	
 	@Resource

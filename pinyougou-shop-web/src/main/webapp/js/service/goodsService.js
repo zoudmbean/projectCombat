@@ -6,8 +6,8 @@ app.service('goodsService',function($http){
 		return $http.get('../goods/findAll.do');		
 	}
 	//分页 
-	this.findPage=function(page,rows){
-		return $http.get('../goods/findPage.do?page='+page+'&rows='+rows);
+	this.findPage=function(searchEntity,page,rows){
+		return $http.post('../goods/findPage.do?page='+page+'&rows='+rows,searchEntity);
 	}
 	//查询实体
 	this.findOne=function(id){
@@ -25,8 +25,8 @@ app.service('goodsService',function($http){
 	this.dele=function(ids){
 		return $http.get('../goods/delete.do?ids='+ids);
 	}
-	//搜索
-	this.search=function(page,rows,searchEntity){
-		return $http.post('../goods/search.do?page='+page+"&rows="+rows, searchEntity);
-	}    	
+	// 上下架
+	this.updateMarket = function(entity,status){
+		return $http.post('../goods/updateMarket.do?status='+status,entity);
+	}
 });

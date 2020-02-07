@@ -39,8 +39,8 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/findPage")
-	public PageResult  findPage(int page,int rows){			
-		return goodsService.findPage(page, rows);
+	public PageResult  findPage(@RequestBody TbGoods goods,int page,int rows){	
+		return goodsService.findPage(goods,page, rows);
 	}
 	
 	/**
@@ -68,7 +68,7 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/update")
-	public Result update(@RequestBody TbGoods goods){
+	public Result update(@RequestBody Goods goods){
 		try {
 			goodsService.update(goods);
 			return new Result(true, "修改成功");
@@ -84,7 +84,7 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/findOne")
-	public TbGoods findOne(Long id){
+	public Goods findOne(Long id){
 		return goodsService.findOne(id);		
 	}
 	
@@ -104,16 +104,36 @@ public class GoodsController {
 		}
 	}
 	
-		/**
-	 * 查询+分页
-	 * @param brand
-	 * @param page
-	 * @param rows
+	/**
+	 * 批量删除
+	 * @param ids
 	 * @return
 	 */
-	@RequestMapping("/search")
-	public PageResult search(@RequestBody TbGoods goods, int page, int rows  ){
-		return goodsService.findPage(goods, page, rows);		
+	@RequestMapping("/deleGoods")
+	public Result deleGoods(Long [] ids){
+		try {
+			goodsService.deleGoods(ids);
+			return new Result(true, "删除成功"); 
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Result(false, "删除失败");
+		}
+	}
+	
+	/** 审核与驳回
+	 * @param ids
+	 * @param status
+	 * @return
+	 */
+	@RequestMapping("/updateAuditStatus")
+	public Result updateAuditStatus(Long [] ids,String status){
+		try {
+			goodsService.updateAuditStatus(ids,status);
+			return new Result(true, "操作成功"); 
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Result(false, "操作失败");
+		}
 	}
 	
 }
