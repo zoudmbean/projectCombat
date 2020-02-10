@@ -1,13 +1,17 @@
 package com.pinyougou.manager.controller;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.pojo.TbGoods;
+import com.pinyougou.pojo.TbItem;
 import com.pinyougou.povo.Goods;
+import com.pinyougou.search.service.ItemSearchService;
 import com.pinyougou.sellergoods.service.GoodsService;
 
 import entity.PageResult;
@@ -23,6 +27,9 @@ public class GoodsController {
 
 	@Reference
 	private GoodsService goodsService;
+	
+	@Reference(timeout=100000)
+	private ItemSearchService itemSearchService;
 	
 	/**
 	 * 返回全部列表
@@ -113,6 +120,13 @@ public class GoodsController {
 	public Result deleGoods(Long [] ids){
 		try {
 			goodsService.deleGoods(ids);
+			try {
+				itemSearchService.deleteByGoodsIds(Arrays.asList(ids));
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("删除索引失败！");
+			}
+			
 			return new Result(true, "删除成功"); 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -129,6 +143,21 @@ public class GoodsController {
 	public Result updateAuditStatus(Long [] ids,String status){
 		try {
 			goodsService.updateAuditStatus(ids,status);
+			
+			try {
+				// 审核成功之后，更新索引库
+				if("1".equals(status)){
+					// 1. 查询
+					List<TbItem> itemList = goodsService.findItemListByGoodsIdandStatus(ids, status);
+					// 2. 导入索引库
+					if(!CollectionUtils.isEmpty(itemList)){
+						itemSearchService.importList(itemList);
+					}
+				}
+			} catch (Exception e) {
+				System.out.println("更新索引库失败！");
+				e.printStackTrace();
+			}
 			return new Result(true, "操作成功"); 
 		} catch (Exception e) {
 			e.printStackTrace();

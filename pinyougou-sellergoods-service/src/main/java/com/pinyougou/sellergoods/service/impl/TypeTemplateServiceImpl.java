@@ -5,9 +5,11 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -92,7 +94,7 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 	}
 	
 	
-		@Override
+	@Override
 	public PageResult findPage(TbTypeTemplate typeTemplate, int pageNum, int pageSize) {
 		PageHelper.startPage(pageNum, pageSize);
 		
@@ -116,34 +118,59 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 		}
 		
 		Page<TbTypeTemplate> page= (Page<TbTypeTemplate>)typeTemplateMapper.selectByExample(example);		
+		
+		//存入数据到缓存
+		save2Redis();
+		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
 
-		@Override
-		public List<Map<Long,String>> findTypeTemplates() {
-			return typeTemplateMapper.findTypeTemplates();
+	@Resource
+	private RedisTemplate redisTemplate;
+	
+	/**
+	 * （2）当用户进入运营商后台的模板管理页面时，分别将品牌数据和规格数据放入缓存（Hash）。以模板ID作为key,以品牌列表和规格列表作为值
+	 */
+	private void save2Redis() {
+		List<TbTypeTemplate> all = findAll();
+		for(TbTypeTemplate t : all){
+			// 缓存品牌数据
+			List<Map> list = JSON.parseArray(t.getBrandIds(), Map.class);
+			redisTemplate.boundHashOps("brandList").put(t.getId(), list);
+			// 缓存规格
+			// 根据模板id查询规格
+			List<Map> specList = findSpecList(t.getId());
+			redisTemplate.boundHashOps("specList").put(t.getId(), specList);
 		}
-		
-		@Resource
-		private TbSpecificationOptionMapper specificationOptionMapper;
+		System.out.println("缓存品牌数据！");
+		System.out.println("缓存规格！");
+	}
 
-		@Override
-		public List<Map> findSpecList(Long id) {
-			// 根据模板id，查询模板对象
-			TbTypeTemplate typeTemplate = typeTemplateMapper.selectByPrimaryKey(id);
-			
-			// 获取模板规格
-			String specIds = typeTemplate.getSpecIds();
-			// [{"id":26,"text":"尺码"},{"id":32,"text":"机身内存"},{"id":34,"text":"内存容量"},{"id":33,"text":"电视屏幕尺寸"},{"id":27,"text":"网络"}]
-			List<Map> specList = JSONArray.parseArray(specIds, Map.class);
-			for(Map m : specList){
-				TbSpecificationOptionExample example = new TbSpecificationOptionExample();
-				example.createCriteria().andSpecIdEqualTo(((Integer)m.get("id")).longValue());
-				// 根据map的id，获取所有规格
-				List<TbSpecificationOption> options = specificationOptionMapper.selectByExample(example );
-				m.put("options", options);
-			}
-			return specList;
+	@Override
+	public List<Map<Long,String>> findTypeTemplates() {
+		return typeTemplateMapper.findTypeTemplates();
+	}
+	
+	@Resource
+	private TbSpecificationOptionMapper specificationOptionMapper;
+
+	@Override
+	public List<Map> findSpecList(Long id) {
+		// 根据模板id，查询模板对象
+		TbTypeTemplate typeTemplate = typeTemplateMapper.selectByPrimaryKey(id);
+		
+		// 获取模板规格
+		String specIds = typeTemplate.getSpecIds();
+		// [{"id":26,"text":"尺码"},{"id":32,"text":"机身内存"},{"id":34,"text":"内存容量"},{"id":33,"text":"电视屏幕尺寸"},{"id":27,"text":"网络"}]
+		List<Map> specList = JSONArray.parseArray(specIds, Map.class);
+		for(Map m : specList){
+			TbSpecificationOptionExample example = new TbSpecificationOptionExample();
+			example.createCriteria().andSpecIdEqualTo(((Integer)m.get("id")).longValue());
+			// 根据map的id，获取所有规格
+			List<TbSpecificationOption> options = specificationOptionMapper.selectByExample(example );
+			m.put("options", options);
 		}
+		return specList;
+	}
 	
 }

@@ -1,4 +1,5 @@
 package com.pinyougou.sellergoods.service.impl;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -281,6 +282,17 @@ public class GoodsServiceImpl implements GoodsService {
 	@Override
 	public void updateMaeketable(TbGoods goods) {
 		goodsMapper.updateMaeketable(goods);
+	}
+	
+
+	@Override
+	public List<TbItem> findItemListByGoodsIdandStatus(Long[] ids, String status) {
+		TbItemExample example = new TbItemExample();
+		TbItemExample.Criteria criteria = example.createCriteria();
+		criteria.andStatusEqualTo(status);
+		criteria.andGoodsIdIn(Arrays.asList(ids));
+		List<TbItem> itemList = itemMapper.selectByExample(example  );
+		return itemList;
 	}
 	
 }
