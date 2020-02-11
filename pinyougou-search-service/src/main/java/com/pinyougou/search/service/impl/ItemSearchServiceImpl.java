@@ -54,6 +54,9 @@ public class ItemSearchServiceImpl implements ItemSearchService{
 		Map<String, Object> map = new HashMap<String, Object>();
 		
 		// 关键字空格处理
+		if(null == searchMap.get("keywords")){
+			return map;
+		}
 		String keyWords = (String) searchMap.get("keywords");
 		searchMap.put("keywords", keyWords.replaceAll(" ", ""));
 		
