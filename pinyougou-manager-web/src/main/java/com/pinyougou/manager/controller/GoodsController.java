@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.pinyougou.page.service.ItemPageService;
 import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.povo.Goods;
@@ -145,13 +146,23 @@ public class GoodsController {
 			goodsService.updateAuditStatus(ids,status);
 			
 			try {
-				// 审核成功之后，更新索引库
 				if("1".equals(status)){
-					// 1. 查询
+					/* 1. 审核成功之后，更新索引库*/
+					// 1.1 查询
 					List<TbItem> itemList = goodsService.findItemListByGoodsIdandStatus(ids, status);
-					// 2. 导入索引库
+					// 1.2 导入索引库
 					if(!CollectionUtils.isEmpty(itemList)){
 						itemSearchService.importList(itemList);
+					}
+					
+					/* 2. 审核成功之后，生成商品详情页*/
+					for(Long goodsId : ids){
+						boolean flag = itemPageService.genItemHtml(goodsId);
+						if(flag){
+							System.out.println("生成文件成功！");
+						} else{
+							System.out.println("生成文件失败！");
+						}
 					}
 				}
 			} catch (Exception e) {
@@ -162,6 +173,19 @@ public class GoodsController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new Result(false, "操作失败");
+		}
+	}
+	
+	@Reference(timeout=100000)
+	private ItemPageService itemPageService;
+	
+	@RequestMapping("/genHtml")
+	public void genHtml(Long goodsId){
+		boolean flag = itemPageService.genItemHtml(goodsId);
+		if(flag){
+			System.out.println("生成文件成功！");
+		} else{
+			System.out.println("生成文件失败！");
 		}
 	}
 	
