@@ -1,5 +1,6 @@
 package com.pinyougou.solrutil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -64,9 +65,33 @@ public class SolrUtil {
 		ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:spring/applicationContext*.xml");
 		SolrUtil solrUtil = (SolrUtil) context.getBean("solrUtil");
 		// 导入数据
-		 solrUtil.importItemData();
+		 //solrUtil.importItemData();
 		// 删除所有数据
-		//solrUtil.deleAll();
+		solrUtil.deleAll();
+		// 删除指定的数据
+		//deleTest(solrUtil);
+	}
+
+	private static void deleTest(SolrUtil solrUtil) {
+		List goodsIdList = new ArrayList<>();
+		goodsIdList.add("149187842867969");
+		solrUtil.deleteByGoodslist(goodsIdList);
+	}
+	
+	/*
+	 * 删除指定的goodsid数据
+	 * */
+	public  void deleteByGoodslist(List goodsIdList){
+		SolrDataQuery query = new SimpleQuery();
+		
+		org.springframework.data.solr.core.query.Criteria criteria = new org.springframework.data.solr.core.query.Criteria("item_goodsid").in(goodsIdList);
+		/*Criteria criteria = new Criteria("item_goodsid");
+		criteria.in(goodsIdList);
+		query.addCriteria(criteria );*/
+		//criteria.in(goodsIdList);
+		query.addCriteria(criteria );
+		solrTemplate.delete(query );
+		solrTemplate.commit();
 	}
 	
 }

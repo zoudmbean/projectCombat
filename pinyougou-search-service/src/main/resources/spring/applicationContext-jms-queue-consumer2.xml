@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:amq="http://activemq.apache.org/schema/core"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context   
+		http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	<bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+    	<constructor-arg index="0" value="admin"/>
+    	<constructor-arg index="1" value="admin"/>
+    	<constructor-arg index="2" value="tcp://192.168.25.130:61616"/>
+    	<property name="useAsyncSend" value="true"></property>
+    	<property name="clientID" value="con1"></property>
+    </bean>
+		<!--new  add  begin-->
+	<bean id="cachingConnectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+		<property name="targetConnectionFactory" ref="connectionFactory"/>
+		<property name="sessionCacheSize" value="100" />
+	</bean>
+	
+	
+    <!--这个是队列目的地，点对点的  文本信息  添加到solr库-->  
+	<bean id="queueSolrDestination" class="org.apache.activemq.command.ActiveMQQueue">  
+	    <constructor-arg value="pinyougou_queue_solr"/>  
+	</bean>    
+
+	<!-- 消息监听容器 -->
+	<bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="cachingConnectionFactory" />
+		<property name="destination" ref="queueSolrDestination" />
+		<property name="messageListener" ref="itemSearchListener" />
+	</bean>
+	
+    <!--这个是队列目的地，点对点的  文本信息  删除solr库-->  
+	<bean id="queueSolrDeleDestination" class="org.apache.activemq.command.ActiveMQQueue">  
+	    <constructor-arg value="pinyougou_queue_solr_dele"/>  
+	</bean>    
+
+	<!-- 消息监听容器 -->
+	<bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="cachingConnectionFactory" />
+		<property name="destination" ref="queueSolrDeleDestination" />
+		<property name="messageListener" ref="itemSearchDeleListener" />
+	</bean>
+	
+</beans>

@@ -1,5 +1,4 @@
 package com.pinyougou.sellergoods.service.impl;
-import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -135,6 +134,14 @@ public class ItemServiceImpl implements ItemService {
 		
 		Page<TbItem> page= (Page<TbItem>)itemMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
+	}
+		
+	@Override	
+	public List<TbItem> getIdsByGoodsId(List goodsIds){
+		TbItemExample example = new TbItemExample();
+		Criteria criteria = example.createCriteria();
+		criteria.andGoodsIdIn(goodsIds);
+		return itemMapper.selectByExample(example);
 	}
 	
 }

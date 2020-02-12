@@ -1,22 +1,35 @@
 package com.pinyougou.manager.controller;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Resource;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.jms.Session;
+
+import org.apache.commons.collections.ListUtils;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.pinyougou.page.service.ItemPageService;
+import com.alibaba.fastjson.JSON;
 import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.povo.Goods;
-import com.pinyougou.search.service.ItemSearchService;
 import com.pinyougou.sellergoods.service.GoodsService;
+import com.pinyougou.sellergoods.service.ItemService;
 
 import entity.PageResult;
 import entity.Result;
+import redis.clients.jedis.JedisMonitor;
 /**
  * controller
  * @author Administrator
@@ -29,8 +42,17 @@ public class GoodsController {
 	@Reference
 	private GoodsService goodsService;
 	
-	@Reference(timeout=100000)
-	private ItemSearchService itemSearchService;
+	@Resource
+	private JmsTemplate jmsTemplate;
+	
+	@Resource
+	private Destination queueSolrDestination;
+	
+	@Resource
+	private Destination topicPageDestination;
+	
+	@Resource
+	private Destination topicPageDeleDestination;
 	
 	/**
 	 * 返回全部列表
@@ -112,17 +134,49 @@ public class GoodsController {
 		}
 	}
 	
+	
+	@Resource
+	private Destination queueSolrDeleDestination;
+	
+	@Reference
+	private ItemService itemService;
 	/**
 	 * 批量删除
 	 * @param ids
 	 * @return
 	 */
 	@RequestMapping("/deleGoods")
-	public Result deleGoods(Long [] ids){
+	public Result deleGoods(final Long [] ids){
 		try {
 			goodsService.deleGoods(ids);
 			try {
-				itemSearchService.deleteByGoodsIds(Arrays.asList(ids));
+				// 删除索引库
+				// itemSearchService.deleteByGoodsIds(Arrays.asList(ids));
+				
+				final List<TbItem> items = itemService.getIdsByGoodsId(Arrays.asList(ids));
+				
+				// 消息队列发送删除索引库信息
+				jmsTemplate.send(queueSolrDeleDestination, new MessageCreator() {
+					@Override
+					public Message createMessage(Session session) throws JMSException {
+						List iIds = new ArrayList<>();
+						for(TbItem t : items){
+							iIds.add(t.getId());
+						}
+						return session.createTextMessage(JSON.toJSONString(iIds));
+					}
+				});
+				
+				/*
+				 * 删除页面
+				 * */
+				jmsTemplate.send(topicPageDeleDestination, new MessageCreator() {
+					@Override
+					public Message createMessage(Session session) throws JMSException {
+						return session.createObjectMessage(ids);
+					}
+				});
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.out.println("删除索引失败！");
@@ -152,18 +206,30 @@ public class GoodsController {
 					List<TbItem> itemList = goodsService.findItemListByGoodsIdandStatus(ids, status);
 					// 1.2 导入索引库
 					if(!CollectionUtils.isEmpty(itemList)){
-						itemSearchService.importList(itemList);
+						// itemSearchService.importList(itemList);
+						// 使用activeMQ来实现
+						// 注意：L这里需要转成json字符串，因为数据源是list集合，list集合没有实现可序列化接口不能再网络传递数据
+						final String jsonString = JSON.toJSONString(itemList);   
+						jmsTemplate.send(queueSolrDestination, new MessageCreator() {
+							@Override
+							public Message createMessage(Session session) throws JMSException {
+								return session.createTextMessage(jsonString);
+							}
+						});
+						
 					}
 					
 					/* 2. 审核成功之后，生成商品详情页*/
-					for(Long goodsId : ids){
-						boolean flag = itemPageService.genItemHtml(goodsId);
-						if(flag){
-							System.out.println("生成文件成功！");
-						} else{
-							System.out.println("生成文件失败！");
-						}
+					for(final Long goodsId : ids){
+						// boolean flag = itemPageService.genItemHtml(goodsId);
+						jmsTemplate.send(topicPageDestination, new MessageCreator() {
+							@Override
+							public Message createMessage(Session session) throws JMSException {
+								return session.createTextMessage(goodsId+"");
+							}
+						});
 					}
+					
 				}
 			} catch (Exception e) {
 				System.out.println("更新索引库失败！");
@@ -173,19 +239,6 @@ public class GoodsController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new Result(false, "操作失败");
-		}
-	}
-	
-	@Reference(timeout=100000)
-	private ItemPageService itemPageService;
-	
-	@RequestMapping("/genHtml")
-	public void genHtml(Long goodsId){
-		boolean flag = itemPageService.genItemHtml(goodsId);
-		if(flag){
-			System.out.println("生成文件成功！");
-		} else{
-			System.out.println("生成文件失败！");
 		}
 	}
 	

@@ -1,5 +1,6 @@
 package com.pinyougou.page.service.impl;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -10,9 +11,9 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
-import com.alibaba.dubbo.config.annotation.Service;
 import com.pinyougou.mapper.TbGoodsDescMapper;
 import com.pinyougou.mapper.TbGoodsMapper;
 import com.pinyougou.mapper.TbItemCatMapper;
@@ -37,7 +38,7 @@ import freemarker.template.TemplateNotFoundException;
  * @author Administrator
  *
  */
-@Service(timeout=50000)
+@Service
 public class ItemPageServiceImpl implements ItemPageService{
 	
 	@Resource
@@ -57,6 +58,23 @@ public class ItemPageServiceImpl implements ItemPageService{
 	
 	@Resource
 	private TbItemMapper itemMapper;
+	
+	@Override
+	public boolean deleItemHtml(Long [] ids){
+		try {
+			for(Long id : ids){
+				// 1. 获取文件
+				File file = new File(pageDir + id + ".html");
+				if(file.exists()){
+					file.delete();
+				}
+			}
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 	
 	@Override
 	public boolean genItemHtml(Long goodsId) {

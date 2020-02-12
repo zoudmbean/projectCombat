@@ -1,6 +1,7 @@
 package com.pinyougou.search.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import org.springframework.util.StringUtils;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.pinyougou.pojo.TbItem;
+import com.pinyougou.pojo.TbItemExample;
 import com.pinyougou.search.service.ItemSearchService;
 
 
@@ -302,7 +304,7 @@ public class ItemSearchServiceImpl implements ItemSearchService{
 		solrTemplate.commit();
 	}
 
-	@Override
+	/*@Override
 	public void deleteByGoodsIds(List goodsIdList) {
 		SolrDataQuery query = new SimpleQuery("*:*");
 		Criteria criteria = new Criteria("item_goodsid");
@@ -310,6 +312,15 @@ public class ItemSearchServiceImpl implements ItemSearchService{
 		query.addCriteria(criteria );
 		solrTemplate.delete(query );
 		solrTemplate.commit();
+	}*/
+	
+	@Override
+	public void deleteByGoodsIds(List goodsIdList) {
+		for(int i = 0 ; i < goodsIdList.size(); i++){
+			Long idL = (Long)goodsIdList.get(i);
+			solrTemplate.deleteById(idL + "");
+		}
+		solrTemplate.commit();
 	}
-
+	
 }
