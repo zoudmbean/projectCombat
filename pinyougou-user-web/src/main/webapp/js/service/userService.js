@@ -33,4 +33,9 @@ app.service('userService',function($http){
 	this.genSmsCode = function(phone) {
 		return $http.get('../user/genSmsCode.do?phone='+phone);
 	}
+	
+	// 获取登录用户名
+	this.showName = function() {
+		return $http.get('../login/showName.do');
+	}
 });
