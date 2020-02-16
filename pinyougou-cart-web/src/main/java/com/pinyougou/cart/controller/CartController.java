@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,7 +38,14 @@ public class CartController {
 	 * @return
 	 */
 	@RequestMapping("/addGoodsToCartList")
+	@CrossOrigin(origins="http://localhost:9105",allowCredentials="true")
 	public Result addGoodsToCartList(Long itemId,Integer num){
+		
+		/* 设置跨域请求的头信息 */
+		// 1. 可以访问的域  用*号代替域名，可以被所有的域访问   注意:如果该方法可以操作cookie，那么这里的域名不能使用*
+		//response.setHeader("Access-Control-Allow-Origin", "http://localhost:9105"); 
+		// 2. 允许携带凭证（cookie） 注意：如果该方法不涉及对cookie的操作，那么这句话可以不写，同时客户端也不必做更改
+		//response.setHeader("Access-Control-Allow-Credentials", "true");
 		
 		try {
 			List<Cart> cartList =findCartList();//获取购物车列表
