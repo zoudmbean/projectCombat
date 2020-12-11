@@ -6,6 +6,10 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
   application:
     name: gulimall-product
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml   # 不配置默认就是这个目录
@@ -14,4 +18,4 @@ mybatis-plus:
       id-type: auto # 配置主键自增
 
 server:
-  port: 8084
+  port: 8083

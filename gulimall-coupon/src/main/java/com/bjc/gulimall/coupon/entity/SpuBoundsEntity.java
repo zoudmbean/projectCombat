@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * 商品spu积分设置
@@ -27,7 +28,7 @@ public class SpuBoundsEntity implements Serializable {
 	@TableId
 	private Long id;
 	/**
-	 * 
+	 *
 	 */
 	private Long spuId;
 	/**

@@ -60,7 +60,27 @@
             <scope>provided</scope>
         </dependency>
 
+        <!--        服务注册/发现  因为SpringCloud Alibaba的依赖管理在Common工程  其他微服务工程也都依赖该工程，所以，将nacos依赖放在common工程
+                    根据依赖传递性，其他工程也就有了nacos的依赖了
+        -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>2.1.0.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 
 </project>

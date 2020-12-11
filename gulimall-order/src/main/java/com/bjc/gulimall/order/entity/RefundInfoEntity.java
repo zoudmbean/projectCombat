@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * 退款信息
@@ -47,7 +48,7 @@ public class RefundInfoEntity implements Serializable {
 	 */
 	private Integer refundChannel;
 	/**
-	 * 
+	 *
 	 */
 	private String refundContent;
 
