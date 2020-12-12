@@ -43,8 +43,61 @@
             2）feign接口参看gulimall-member工程的feign包下的CouponFeignService类下的memberCoupons方法
             3）调用参看MemberController类的test()方法
 3）配置中心：SpringCloud Alibaba-Nacos
-4）负载均衡：SpringCloud Ribbon
-5）服务容错（限流、降级、熔断）：SpringCloud Alibaba Sentinel
-6）API网关（Webflux编程模式）：SpringCloud Gateway
+    3.1 操作步骤：
+        3.1.1 引入nacos config启动器依赖
+        `
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+            </dependency>
+        `
+        3.1.2 在应用的src/main/resources/bootstrap.properties配置文件，配置Nacos Config元数据
+            `
+                ## 配置当前应用名称
+                spring.application.name=gulimall-coupon
+                ## 指定Nacos配置中心的地址（就是Nacos Server的地址）
+                spring.cloud.nacos.config.server-addr=127.0.0.1:8848
+            `
+            注意：bootstrap.properties文件会优先于application配置文件加载
+        3.1.3 在Nacos配置中心中新建数据集（Data Id）并填写配置内容
+            默认规则：应用名.properties  
+            例如：gulimall-coupon.properties
+        3.1.4 在使用配置的类上加上注解 @RefreshScope (注：该注解的作用是动态获取并刷新配置，也就是说只要配置中心的配置内容作了改变，页面都能实时体现)   
+            例如：com.bjc.gulimall.coupon.controller.CouponController上的注解@RefreshScope
+        注意：如果配置中心和应用的配置中都配置了相同的项，那么优先使用配置中心的配置内容
+    3.2 命名空间：配置（环境）隔离
+        3.2.1 概念：用户进行租户粒度的配置隔离，不同的命名空间下，可以存在相同的group或Data Id的配置。NameSpace的常用场景之一是不同环境的配置的分区隔离。
+              例如：开发测试生产环境的资源（如配置、服务）隔离等。
+        3.2.2 默认空间：public(保留空间)
+            如果不指定命名空间，默认新增的所有配置都位于该空间public下
+        3.2.3 指定命名空间：只需要在bootstrap.properties配置文件中添加如下配置即可
+        `
+            ## 指定命名空间
+            spring.cloud.nacos.config.namespace=ea5cda76-855c-4e4c-bfae-dfe74167e869
+        `
+    3.3 配置集：所有配置的集合
+        一组相关或者不相关的配置项的集合称为配置集。在系统中，一个配置文件通常就是一个配置集，包含了系统各个方面的配置。
+        例如；一个配置集可能包含了数据源、线程池、日志级别等配置项
+    3.4 配置集ID：类似文件名
+        Nacos中的某个配置集的ID。配置集ID是组织划分配置的维度之一。Data Id通常用于组织划分系统的配置集。一个系统或者应用可以包含多个配置集，每个
+        配置集都可以被一个有意义的名称标识。Data Id通常采用类java包（如 com.taobao.tc.refund.log.level）的命名规则保证全局唯一性。此命名规则非强制
+    3.5 配置分组：默认所有的配置都属于组DEFAULT_GROUP
+        Nacos中的一组配置集，是组织配置的维度之一，通过一个有意义的字符串（如Buy或者Trade）对配置进行分组，从而区分Data Id相同的配置集。当在Nacos上传统将一个
+        配置时，如果未填写配置分组的名称，则配置分组的名称默认采用 DEFAULT_GROUP。配置分组的常见场景，不同的应用或组件使用了相同的配置类型，如：database_url
+        配置和MQ_topic配置。
+        `
+            ## 指定 配置分组（不指定默认是DEFAULT_GROUP）
+            spring.cloud.nacos.config.group=gulimall
+        `
+4）API网关（Webflux编程模式）：SpringCloud Gateway
+    4.1 简介
+        网关作为流量的入口，常用功能包括路由转发、权限校验、限流控制等。而SpringCloud gateway作为SpringCloud官方推出的第二代网关框架，取代了Zuul网关
+        网关提供API全托管服务，丰富的API管理功能，辅助企业管理大规模的API，以降低管理成本和安全风险，包括协议适配、协议转发、安全策略、防刷、流量、监控日志等功能。
+        spring cloud gateway旨在提供一种简单而有效的方式来对API进行路由，并为他们提供切面。例如：安全性，监控/指标和弹性等。
+    4.2 执行流程
+        当请求到达网关，网关先利用断言（predicate）判定本次请求是否符合某个路由（Route）规则，
+        如果符合了就按照该路由规则路由到指定的地方，去该指定地方需要经过一系列的过滤器（filter）进行过滤
+5）负载均衡：SpringCloud Ribbon
+6）服务容错（限流、降级、熔断）：SpringCloud Alibaba Sentinel
 7）调用链监控：SpringCloud Sleuth
 8）分布式事务解决方案：SpringCloud Alibaba Seata(原Fesca)
