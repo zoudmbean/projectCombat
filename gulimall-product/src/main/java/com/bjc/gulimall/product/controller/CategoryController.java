@@ -1,6 +1,7 @@
 package com.bjc.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 // import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -32,14 +33,14 @@ public class CategoryController {
     private CategoryService categoryService;
 
     /**
-     * 列表
+     * 查出所有分类以及子分类，以树型解构组装起来
      */
-    @RequestMapping("/list")
+    @RequestMapping("/list/tree")
     // @RequiresPermissions("product:category:list")  // shiro注解
-    public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = categoryService.queryPage(params);
-
-        return R.ok().put("page", page);
+    public R list(){
+        // PageUtils page = categoryService.queryPage(params);
+        List<CategoryEntity> treeList = categoryService.listTree();
+        return R.ok().put("data", treeList);
     }
 
 

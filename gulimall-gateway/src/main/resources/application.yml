@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: gulimall-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+    gateway:
+      routes:
+        - id: baidu_route                  #  路由id
+          uri: https://www.baidu.com      #  要去到的地址  什么时候要去这个地址了，这时候需要配置断言
+          predicates:                     #  配置断言规则
+            - Query=url,baidu             # 请求参数断言  这句话的意思是，如果请求参数包含了URL并且URL的值等于baidu，那么就匹配。注意；如果不写逗号后面的内容表示只要请求参数包含了URL就能匹配
+
+        - id: qq_route
+          uri: https://new.qq.com
+          predicates:
+            - Query=url,qq
+
+        - id: admin_route
+          uri: lb://renren-fast     # lb://gulimall-admin  表示负载均衡到renren-fast服务
+          predicates:
+            - Path=/api/**             # 路径匹配  这句话的意思是，从管理系统发出的任意带/api的请求都路由到admin_route
+          filters:
+            - RewritePath=/api/(?<segment>.*),/renren-fast/$\{segment}       # 所有的路径都是以/api开始的,都重写成/renren-fast/指定的路径
+
+# 定义一个规则，只要是前端发出的请求，都带上/api
+
+server:
+  port: 8888
+
+

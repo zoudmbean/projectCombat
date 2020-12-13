@@ -33,7 +33,11 @@ spring:
                     config:
                         multi-statement-allow: true
     application:
-        name: gulimall-admin
+        name: renren-fast
+    cloud:
+        nacos:
+            discovery:
+                server-addr: 127.0.0.1:8848
 
 
 

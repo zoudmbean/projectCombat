@@ -51,6 +51,12 @@
 	</properties>
 
 	<dependencies>
+		<!-- 后端管理系统也需要注册要注册中心 -->
+		<dependency>
+			<groupId>com.bjc.gulimall</groupId>
+			<artifactId>gulimall-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>

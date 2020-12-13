@@ -97,6 +97,12 @@
     4.2 执行流程
         当请求到达网关，网关先利用断言（predicate）判定本次请求是否符合某个路由（Route）规则，
         如果符合了就按照该路由规则路由到指定的地方，去该指定地方需要经过一系列的过滤器（filter）进行过滤
+    4.3 使用步骤：
+        4.3.1 新建网关工程引入相关依赖（见gateway工程）
+        4.3.2 在启动类上开启服务注册发现@EnableDiscoveryClient
+        4.3.3 配置配置中心（Nacos）服务的地址
+        4.3.4 排除数据源相关配置，简单的做法是在@SpringBootApplication注解上加上exclude = {DataSourceAutoConfiguration.class}
+        4.3.5 配置路由规则(配置可以参看gateway工程的application.yml配置文件)
 5）负载均衡：SpringCloud Ribbon
 6）服务容错（限流、降级、熔断）：SpringCloud Alibaba Sentinel
 7）调用链监控：SpringCloud Sleuth
