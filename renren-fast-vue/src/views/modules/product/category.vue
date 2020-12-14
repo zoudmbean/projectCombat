@@ -1,9 +1,33 @@
 <template>
   <el-tree
-    :data="data"
+    :data="menus"
     :props="defaultProps"
+    show-checkbox
+    node-key="catId"
+    :expand-on-click-node="false"
+    :highlight-current="true"
+    show-checkbox
     accordion
     @node-click="handleNodeClick">
+
+    <span class="custom-tree-node" slot-scope="{ node, data }">
+        <span>{{ node.label }}</span>
+        <span>
+          <el-button v-if="node.level < 3"
+            type="text"
+            size="mini"
+            @click="() => append(data)">
+            Append
+          </el-button>
+          <el-button v-if="node.childNodes.length==0"
+            type="text"
+            size="mini"
+            @click="() => remove(node, data)">
+            Delete
+          </el-button>
+        </span>
+      </span>
+
   </el-tree>
 </template>
 
@@ -12,48 +36,20 @@
         name: "Category",
         data() {
           return {
-            data: [{
-              label: '一级 1',
-              children: [{
-                label: '二级 1-1',
-                children: [{
-                  label: '三级 1-1-1'
-                }]
-              }]
-            }, {
-              label: '一级 2',
-              children: [{
-                label: '二级 2-1',
-                children: [{
-                  label: '三级 2-1-1'
-                }]
-              }, {
-                label: '二级 2-2',
-                children: [{
-                  label: '三级 2-2-1'
-                }]
-              }]
-            }, {
-              label: '一级 3',
-              children: [{
-                label: '二级 3-1',
-                children: [{
-                  label: '三级 3-1-1'
-                }]
-              }, {
-                label: '二级 3-2',
-                children: [{
-                  label: '三级 3-2-1'
-                }]
-              }]
-            }],
+            menus: [],
             defaultProps: {
               children: 'children',
-              label: 'label'
+              label: 'name'
             }
           };
         },
         methods: {
+          append(data) {  // 添加节点
+
+          },
+          remove(node, data) {  // 删除节点
+console.log(node.children)
+          },
           handleNodeClick(data) {
             console.log(data);
           },
@@ -62,7 +58,9 @@
               url: this.$http.adornUrl('/product/category/list/tree'),
               method: 'get'
             }).then(({data}) => {
-              console.log(data)
+              if(data.code * 1 === 0){
+                this.menus = data.data
+              }
             })
           }
         },

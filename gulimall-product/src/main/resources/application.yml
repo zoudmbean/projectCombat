@@ -16,6 +16,8 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto # 配置主键自增
+      logic-delete-value: 0         # 逻辑删除值
+      logic-not-delete-value: 1     # 逻辑不删除值
 
 server:
   port: 8083

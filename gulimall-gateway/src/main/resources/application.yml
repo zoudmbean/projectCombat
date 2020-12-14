@@ -17,6 +17,13 @@ spring:
           predicates:
             - Query=url,qq
 
+        - id: product_route
+          uri: lb://gulimall-product     # lb://gulimall-admin  表示负载均衡到gulimall-product服务
+          predicates:
+            - Path=/api/product/**             # 路径匹配  这句话的意思是，从管理系统发出的任意带/api/product的请求都路由到product_route
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}       # 表示将/api后面的内容替换成/$\{segment}  相当于是去掉api
+
         - id: admin_route
           uri: lb://renren-fast     # lb://gulimall-admin  表示负载均衡到renren-fast服务
           predicates:
