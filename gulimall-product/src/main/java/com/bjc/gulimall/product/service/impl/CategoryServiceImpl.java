@@ -38,7 +38,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         List<CategoryEntity> entities = baseMapper.selectList(null);
 
         // 2. 获取所有的一级分类
-        List<CategoryEntity> level1 = entities.parallelStream()
+        List<CategoryEntity> level1 = entities.stream()
                 .filter(c -> c.getParentCid() == 0)
                 .map(menu -> {
                     menu.setChildren(getChildren(menu,entities));
@@ -65,8 +65,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     * 根据当前菜单获取其子菜单
     * */
     private List<CategoryEntity> getChildren(CategoryEntity categoryEntity, List<CategoryEntity> entities) {
-        List<CategoryEntity> children = entities.parallelStream()
-                .filter(c -> c.getParentCid() == categoryEntity.getCatId())
+        List<CategoryEntity> children = entities.stream()
+                .filter(c -> c.getParentCid().longValue() == categoryEntity.getCatId().longValue())  // 这里转成long型来比较值相等，否则值过大的时候就恒不等了
                 .map(menu -> {
                     menu.setChildren(getChildren(menu,entities));
                     return menu;

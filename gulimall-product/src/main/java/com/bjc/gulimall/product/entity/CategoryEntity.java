@@ -44,6 +44,8 @@ public class CategoryEntity implements Serializable {
 	private Integer catLevel;
 	/**
 	 * 是否显示[0-不显示，1显示]
+	 * value：默认逻辑未删除值（该值可无，会自动获取全局配置）
+	 * delval：默认逻辑删除值（该值可无，会自动获取全局配置）
 	 */
 	@TableLogic(value = "1",delval="0")
 	private Integer showStatus;
