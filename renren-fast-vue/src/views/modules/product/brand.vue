@@ -45,11 +45,11 @@
             fit="fill"
             :src="scope.row.logo" >
           </el-image>-->
-          <img :src="scope.row.logo" style="width: 100px; height: 80px">
+          <img :src="scope.row.logo" style="width: 100px; height: 100px">
         </template>
       </el-table-column>
       <el-table-column
-        prop="descript"
+        prop="descript"v
         header-align="center"
         align="center"
         label="介绍">

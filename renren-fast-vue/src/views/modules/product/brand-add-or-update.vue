@@ -31,7 +31,7 @@
       <el-input v-model="dataForm.firstLetter" placeholder="检索首字母"></el-input>
     </el-form-item>
     <el-form-item label="排序" prop="sort">
-      <el-input v-model="dataForm.sort" placeholder="排序"></el-input>
+      <el-input v-model.number="dataForm.sort" placeholder="排序"></el-input>
     </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -45,6 +45,21 @@
   import singleUpload from "@/components/upload/singleUpload"
   export default {
     data () {
+      // data中也可以写函数
+      // 排序字段的校验规则
+      var sortValidator = (rule, value, callback) => {
+          if(!/^[0-9]+$/.test(value)){
+            return callback(new Error("排序字段只能为正整数"));
+          } else {
+            callback();
+          }
+          /*
+          // 不用正则，用该方式也可以
+          if(!Number.isInteger(value) || value < 0){
+            return callback(new Error("排序字段只能为正整数"));
+          }
+          */
+      }
       return {
         visible: false,
         dataForm: {
@@ -52,9 +67,9 @@
           name: '',
           logo: '',
           descript: '',
-          showStatus: '',
+          showStatus: 1,
           firstLetter: '',
-          sort: ''
+          sort: 0
         },
         dataRule: {
           name: [
@@ -70,10 +85,26 @@
             { required: true, message: '显示状态[0-不显示；1-显示]不能为空', trigger: 'blur' }
           ],
           firstLetter: [
-            { required: true, message: '检索首字母不能为空', trigger: 'blur' }
+            /*{ required: true, message: '检索首字母不能为空', trigger: 'blur' }*/
+            {
+              validator: (rule, value, callback) => {  // 首字母校验规则
+                if (!value) {
+                  callback(new Error('检索首字母不能为空!'));
+                } else if (value.length > 1) {
+                  callback(new Error('检索首字母长度不能大于1!'));
+                /*} else if(!new RegExp("^[A-Za-z]$").test(value)){*/
+                } else if(!/^[A-Za-z]$/.test(value)){
+                  callback(new Error('检索首字母只能为一个字母!'));
+                }else {
+                  callback();   // 成功
+                }
+              },
+              trigger: 'blur'
+            }
           ],
           sort: [
-            { required: true, message: '排序不能为空', trigger: 'blur' }
+            /*{ required: true, message: '排序不能为空', trigger: 'blur' }*/
+            { validator:sortValidator, trigger: 'blur'}
           ]
         }
       }
@@ -132,6 +163,8 @@
               } else {
                 this.$message.error(data.msg)
               }
+            }).catch((data) => {
+              this.$message.error("服务器异常" + data);
             })
           }
         })
