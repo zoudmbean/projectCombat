@@ -8,7 +8,7 @@
       <el-input v-model="dataForm.name" placeholder="品牌名"></el-input>
     </el-form-item>
     <el-form-item label="品牌logo地址" prop="logo">
-      <!--<el-input v-model="dataForm.logo" placeholder="品牌logo地址"></el-input>-->
+     <!-- <el-input v-model="dataForm.logo" placeholder="品牌logo地址"></el-input>-->
       <single-upload v-model="dataForm.logo"></single-upload>
     </el-form-item>
     <el-form-item label="介绍" prop="descript">
@@ -161,7 +161,16 @@
                   }
                 })
               } else {
-                this.$message.error(data.msg)
+                if(data.code === 10001){
+                  let errMsg = data.msg + "  ";
+                  Object.keys(data.data).forEach(k => {
+                    errMsg += "," + k + ":" + data.data[k]
+                  })
+
+                  this.$message.error(errMsg)
+                } else {
+                  this.$message.error(data.msg)
+                }
               }
             }).catch((data) => {
               this.$message.error("服务器异常" + data);

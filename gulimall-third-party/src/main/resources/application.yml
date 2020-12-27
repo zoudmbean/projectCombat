@@ -6,8 +6,8 @@ spring:
       discovery:
         server-addr: 127.0.0.1:8848   # 注册中心地址
     #alicloud:                         # OSS对象存储服务   配置单独抽取在Nacos中了
-    #  access-key: LTAI4GHUksgffSgTD1FKbwkm
-    #  secret-key: nLLv4x0a2TCY9L8F4hMrRT9Y7mhLnF
+    #  access-key: LTAI4GHU。。。
+    #  secret-key: nLLv4x0a2。。。
     #  oss:
     #    endpoint: oss-cn-hangzhou.aliyuncs.com
 

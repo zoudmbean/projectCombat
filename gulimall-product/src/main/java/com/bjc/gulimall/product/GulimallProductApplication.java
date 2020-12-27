@@ -4,6 +4,8 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 /*
 * 整合myBatis-plus
@@ -25,6 +27,70 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
     2）在实体bean中指定逻辑删除字段
         @TableLogic(value = "1",delval="0")  // 是否显示[0-不显示，1显示]
 	    private Integer showStatus;
+
+ JSR303数据校验：
+    1）给Bean添加校验注解(在包 javax.validation.constraints 下)，例如：@NotNull
+    2）在Controller层，给需要校验的地方加上校验注解@Valid，开启校验功能
+    例如：
+    ·
+        @RequestMapping("/save")
+        // @RequiresPermissions("product:brand:save")
+        public R save(@Valid @RequestBody BrandEntity brand){
+            brandService.save(brand);
+            return R.ok();
+        }
+    ·
+        加上校验注解之后，在提交请求的时候，就会对提交的数据进行数据校验
+    3）如果要修改校验不通过错误信息提示，可以在校验注解上加上message注解，例如：@NotBlank(message = "品牌名必须不能为空")
+    4）如果要获取校验的结果，可以使用BindingResult，BindingResult封装了校验结果，定义紧跟在@Valid修饰的实体bean的后面。例如：
+        ·
+            @RequestMapping("/save")
+            public R save(@Valid @RequestBody BrandEntity brand, BindingResult result){
+                if(result.hasErrors()){
+                    Map<String,String> map = new HashMap<>();
+                    result.getFieldErrors().stream().forEach(item -> {
+                        map.put(item.getField(),item.getDefaultMessage());  // 如果有自定义消息，那么getDefaultMessage获取的是自定义的，否则就是默认的消息
+                    });
+                    return R.error(400,"提交的数据不合法").put("data",map);
+                }
+                brandService.save(brand);
+                return R.ok();
+            }
+        ·
+ 统一异常处理
+    对于数据校验，几乎每个controller都需要做校验，如果每个controller都写一遍校验异常处理，那太麻烦了。
+    我们可以使用统一异常处理注解@RestControllerAdvice(basePackages="com.bjc.*.controller")
+    使用步骤：
+       1）新建一个异常处理器类
+       2）在类上加上注解@RestControllerAdvice，并制定basePackages
+       3）定义一个异常处理方法，并在方法上加上注解@ExceptionHandler并制定需要处理的异常类型，例如：MethodArgumentNotValidException
+       例如：
+       ·
+            @RestControllerAdvice(basePackages="com.bjc.*.controller")
+            @Slf4j
+            public class GulimallExceptionControllerAdvice {
+
+                //处理JSR303数据校验抛出的异常
+                @ExceptionHandler(value = MethodArgumentNotValidException.class)
+                public R handleValidException(MethodArgumentNotValidException e){
+                    // 打印日志
+                    log.error("提交的数据不合法",e);
+                    BindingResult bindingResult = e.getBindingResult();
+                    Map<String,String> errMap = new HashMap<>();
+                    bindingResult.getFieldErrors().stream().forEach(item -> {
+                        errMap.put(item.getField(),item.getDefaultMessage());
+                    });
+                    return R.error(400,"提交的数据不合法").put("data",errMap);
+                }
+
+                @ExceptionHandler(value = Throwable.class)
+                public R handleException(Throwable e){
+                    log.error("出现异常：",e);
+                    return R.error(500,"服务器异常！");
+                }
+
+            }
+       ·
 * */
 @MapperScan("com.bjc.gulimall.product.dao")
 @EnableDiscoveryClient

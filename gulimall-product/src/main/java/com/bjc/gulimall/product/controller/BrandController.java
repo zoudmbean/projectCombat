@@ -1,10 +1,16 @@
 package com.bjc.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 // import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.bjc.common.validation.UpdateGroup;
+import com.bjc.common.validation.UpdateStatusGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +22,7 @@ import com.bjc.gulimall.product.service.BrandService;
 import com.bjc.common.utils.PageUtils;
 import com.bjc.common.utils.R;
 
+import javax.validation.Valid;
 
 
 /**
@@ -59,9 +66,16 @@ public class BrandController {
      */
     @RequestMapping("/save")
     // @RequiresPermissions("product:brand:save")
-    public R save(@RequestBody BrandEntity brand){
+    public R save(@Valid @RequestBody BrandEntity brand, BindingResult result){
+        // 这里的处理可以去掉了，因为写了全局异常处理类的
+        if(result.hasErrors()){
+            Map<String,String> map = new HashMap<>();
+            result.getFieldErrors().stream().forEach(item -> {
+                map.put(item.getField(),item.getDefaultMessage());  // 如果有自定义消息，那么getDefaultMessage获取的是自定义的，否则就是默认的消息
+            });
+            return R.error(400,"提交的数据不合法").put("data",map);
+        }
 		brandService.save(brand);
-
         return R.ok();
     }
 
@@ -70,7 +84,18 @@ public class BrandController {
      */
     @RequestMapping("/update")
     // @RequiresPermissions("product:brand:update")
-    public R update(@RequestBody BrandEntity brand){
+    public R update(@Validated(value={UpdateGroup.class}) @RequestBody BrandEntity brand){
+		brandService.updateById(brand);
+
+        return R.ok();
+    }
+
+    /**
+     * 修改状态
+     */
+    @RequestMapping("/update/status")
+    // @RequiresPermissions("product:brand:update")
+    public R updateStatus(@Validated(value={UpdateStatusGroup.class}) @RequestBody BrandEntity brand){
 		brandService.updateById(brand);
 
         return R.ok();
