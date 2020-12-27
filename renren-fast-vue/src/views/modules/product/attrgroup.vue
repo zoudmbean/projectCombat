@@ -88,7 +88,7 @@
             layout="total, sizes, prev, pager, next, jumper">
           </el-pagination>
           <!-- 弹窗, 新增 / 修改 -->
-          <!--<add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>-->
+          <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
         </div>
       </div></el-col>
     </el-row>
@@ -98,9 +98,11 @@
 <script>
   import PubSub from 'pubsub-js'
   import Category from '../common/category.vue'
+  import addOrUpdate from './attrgroup-add-or-update.vue'
   export default {
     data () {
       return {
+        catId:0,        // 当前树形菜单节点  默认为0表示所有
         dataForm: {
           key: ''
         },
@@ -114,7 +116,8 @@
       }
     },
     components: {
-      Category
+      Category,
+      addOrUpdate
     },
     activated () {
       this.getDataList()
@@ -131,12 +134,16 @@
       nodeClick({data,node,component}){
         console.log(data)
         console.log(data.catId);
+        if(node.level == 3){
+          this.catId = data.catId;
+          this.getDataList();
+        }
       },
       // 获取数据列表
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/product/attrgroup/list'),
+          url: this.$http.adornUrl(`/product/attrgroup/list/${this.catId}`),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
