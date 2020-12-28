@@ -1,9 +1,13 @@
 package com.bjc.gulimall.product.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 // import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.bjc.gulimall.product.entity.CategoryEntity;
+import com.bjc.gulimall.product.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +35,9 @@ public class AttrGroupController {
     @Autowired
     private AttrGroupService attrGroupService;
 
+    @Autowired
+    private CategoryService categoryService;
+
     /**
      * 列表
      */
@@ -51,7 +58,22 @@ public class AttrGroupController {
     public R info(@PathVariable("attrGroupId") Long attrGroupId){
 		AttrGroupEntity attrGroup = attrGroupService.getById(attrGroupId);
 
+		// 根据当前三级分类ID，查询分类路径
+		List<Long> paths = new ArrayList<>();
+        findParents(attrGroup.getCatelogId(),paths);
+        attrGroup.setCatePath(paths.toArray(new Long[paths.size()]));
+
         return R.ok().put("attrGroup", attrGroup);
+    }
+
+    // 根据分类ID查询父分类ID
+    private List<Long> findParents(Long catelogId,List<Long> paths){
+        paths.add(0,catelogId);
+        CategoryEntity byId = categoryService.getById(catelogId);
+        if(null != byId.getParentCid() && byId.getParentCid() != 0){
+            findParents(byId.getParentCid(),paths);
+        }
+        return paths;
     }
 
     /**

@@ -2,6 +2,7 @@
   <el-dialog
     :title="!dataForm.id ? '新增' : '修改'"
     :close-on-click-modal="false"
+    @open="dataForm.catePath=[]"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="120px">
     <el-form-item label="组名" prop="attrGroupName">
@@ -19,9 +20,11 @@
     <el-form-item label="所属分类id" prop="catelogId">
       <!--<el-input v-model="dataForm.catelogId" placeholder="所属分类id"></el-input>-->
       <el-cascader
-        v-model="dataForm.catelogIds"
+        v-model="dataForm.catePath"
         :options="categorys"
-      :props="props">
+        filterable
+        placeholder="试试搜索：手机"
+        :props="props">
       </el-cascader>
     </el-form-item>
     </el-form>
@@ -43,7 +46,7 @@
           sort: '',
           descript: '',
           icon: '',
-          catelogIds: [],
+          catePath: [],
           catelogId: 0
         },
         categorys:[],     // 所有的分类
@@ -99,6 +102,7 @@
                 this.dataForm.descript = data.attrGroup.descript
                 this.dataForm.icon = data.attrGroup.icon
                 this.dataForm.catelogId = data.attrGroup.catelogId
+                this.dataForm.catePath = data.attrGroup.catePath
               }
             })
           }
@@ -117,7 +121,7 @@
                 'sort': this.dataForm.sort,
                 'descript': this.dataForm.descript,
                 'icon': this.dataForm.icon,
-                'catelogId': this.dataForm.catelogIds[this.dataForm.catelogIds.length-1]
+                'catelogId': this.dataForm.catePath[this.dataForm.catePath.length-1]
               })
             }).then(({data}) => {
               if (data && data.code === 0) {
