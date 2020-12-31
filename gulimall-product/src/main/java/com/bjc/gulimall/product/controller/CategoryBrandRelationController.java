@@ -42,6 +42,15 @@ public class CategoryBrandRelationController {
         return R.ok().put("page", page);
     }
 
+    /*
+    * 根据品牌ID查询其下的分类关系数据
+    * */
+    @RequestMapping("/list/{brandId}")
+    // @RequiresPermissions("product:categorybrandrelation:list")  // shiro注解
+    public R listByBrandId(@PathVariable("brandId") Long brandId){
+        return categoryBrandRelationService.queryPageByBrandId(brandId);
+    }
+
 
     /**
      * 信息

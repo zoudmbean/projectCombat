@@ -7,15 +7,13 @@ import java.util.Map;
 // import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.bjc.common.validation.UpdateGroup;
 import com.bjc.common.validation.UpdateStatusGroup;
+import com.bjc.gulimall.product.entity.CategoryBrandRelationEntity;
+import com.bjc.gulimall.product.service.CategoryBrandRelationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.bjc.gulimall.product.entity.BrandEntity;
 import com.bjc.gulimall.product.service.BrandService;
@@ -37,6 +35,9 @@ import javax.validation.Valid;
 public class BrandController {
     @Autowired
     private BrandService brandService;
+
+    @Autowired
+    private CategoryBrandRelationService categoryBrandRelationService;
 
     /**
      * 列表
@@ -110,6 +111,14 @@ public class BrandController {
 		brandService.removeByIds(Arrays.asList(brandIds));
 
         return R.ok();
+    }
+
+    // 新增品牌与分类关联关系
+    @PostMapping("/categorybrandrelation/save")
+    public R categorybrandrelation(@RequestBody CategoryBrandRelationEntity categoryBrandRelationEntity){
+
+        return categoryBrandRelationService.saveCategorybrandrelation(categoryBrandRelationEntity);
+
     }
 
 }

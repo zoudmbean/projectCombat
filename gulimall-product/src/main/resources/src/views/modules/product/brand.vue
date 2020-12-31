@@ -71,6 +71,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
+          <el-button type="text" size="small" @click="generateCategoryHandle(scope.row.brandId)">关联分类</el-button>
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.brandId)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.brandId)">删除</el-button>
         </template>
@@ -87,6 +88,8 @@
     </el-pagination>
     <!-- 弹窗, 新增 / 修改 -->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+
+
   </div>
 </template>
 
@@ -98,6 +101,7 @@
         dataForm: {
           key: ''
         },
+        dialogTableVisible: false,
         dataList: [],
         pageIndex: 1,
         pageSize: 10,
@@ -114,6 +118,9 @@
       this.getDataList()
     },
     methods: {
+      generateCategoryHandle(){   // 关联分类
+
+      },
       // 获取数据列表
       getDataList () {
         this.dataListLoading = true

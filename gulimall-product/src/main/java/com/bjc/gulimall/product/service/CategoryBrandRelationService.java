@@ -2,6 +2,7 @@ package com.bjc.gulimall.product.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.bjc.common.utils.PageUtils;
+import com.bjc.common.utils.R;
 import com.bjc.gulimall.product.entity.CategoryBrandRelationEntity;
 
 import java.util.Map;
@@ -16,5 +17,9 @@ import java.util.Map;
 public interface CategoryBrandRelationService extends IService<CategoryBrandRelationEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    R saveCategorybrandrelation(CategoryBrandRelationEntity categoryBrandRelationEntity);
+
+    R queryPageByBrandId(Long brandId);
 }
 

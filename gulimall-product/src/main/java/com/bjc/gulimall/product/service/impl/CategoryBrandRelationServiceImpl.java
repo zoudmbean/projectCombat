@@ -1,6 +1,14 @@
 package com.bjc.gulimall.product.service.impl;
 
+import com.bjc.common.utils.R;
+import com.bjc.gulimall.product.dao.BrandDao;
+import com.bjc.gulimall.product.dao.CategoryDao;
+import com.bjc.gulimall.product.entity.BrandEntity;
+import com.bjc.gulimall.product.entity.CategoryEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -16,6 +24,12 @@ import com.bjc.gulimall.product.service.CategoryBrandRelationService;
 @Service("categoryBrandRelationService")
 public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandRelationDao, CategoryBrandRelationEntity> implements CategoryBrandRelationService {
 
+    @Autowired
+    private BrandDao brandDao;
+
+    @Autowired
+    private CategoryDao categoryDao;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<CategoryBrandRelationEntity> page = this.page(
@@ -24,6 +38,46 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
         );
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public R queryPageByBrandId(Long brandId) {
+        QueryWrapper<CategoryBrandRelationEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("brand_id",brandId);
+        List<CategoryBrandRelationEntity> list = baseMapper.selectList(wrapper);
+
+        return R.ok().put("data",list);
+
+    }
+
+    /*
+    * 新增品牌与分类关联关系
+    * */
+    @Override
+    public R saveCategorybrandrelation(CategoryBrandRelationEntity categoryBrandRelationEntity) {
+        Long brandId = categoryBrandRelationEntity.getBrandId();
+        Long cateId = categoryBrandRelationEntity.getCatelogId();
+
+        if(null == brandId || null == cateId){
+            return R.error(500,"品牌ID或者分类ID不能为空！");
+        }
+
+        BrandEntity brandEntity = brandDao.selectById(brandId);
+        CategoryEntity categoryEntity = categoryDao.selectById(cateId);
+        if(null == brandEntity || null == categoryEntity){
+            return R.error(500,"品牌ID或者分类ID不存在！");
+        }
+
+        categoryBrandRelationEntity.setBrandName(brandEntity.getName());
+        categoryBrandRelationEntity.setCatelogName(categoryEntity.getName());
+
+        try {
+            baseMapper.insert(categoryBrandRelationEntity);
+        }catch (Exception e) {
+            throw new RuntimeException("数据库异常，保存品牌分类关联信息出错！");
+        }
+
+        return R.ok();
     }
 
 }
