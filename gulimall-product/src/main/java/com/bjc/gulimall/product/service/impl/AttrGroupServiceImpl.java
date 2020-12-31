@@ -32,14 +32,13 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
      * */
     @Override
     public PageUtils queryPageByCatId(Map<String, Object> params, Long catId) {
-
+        QueryWrapper<AttrGroupEntity> wrapper = new QueryWrapper<AttrGroupEntity>();
         // 1. 如果分类ID为空，那么查询所有
-        if(null == catId || catId == 0){
-            return this.queryPage(params);
+        if(null != catId && catId != 0){
+            // 2. 否则，拼接条件
+            wrapper = new QueryWrapper<AttrGroupEntity>().eq("catelog_id",catId);
         }
 
-        // 2. 否则，拼接条件
-        QueryWrapper<AttrGroupEntity> wrapper = new QueryWrapper<AttrGroupEntity>().eq("catelog_id",catId);
         // 如果有查询条件
         String key = (String)params.get("key");
         if(StringUtils.isNotEmpty(key)){

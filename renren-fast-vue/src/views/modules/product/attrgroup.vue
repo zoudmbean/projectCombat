@@ -14,6 +14,7 @@
             </el-form-item>
             <el-form-item>
               <el-button @click="getDataList()">查询</el-button>
+              <el-button type="success" @click="searchAll()">查询所有</el-button>
               <el-button v-if="isAuth('product:attrgroup:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
               <el-button v-if="isAuth('product:attrgroup:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
             </el-form-item>
@@ -138,6 +139,11 @@
           this.catId = data.catId;
           this.getDataList();
         }
+      },
+      searchAll(){
+        this.catId = 0;
+        this.dataForm.key = '';
+        this.getDataList();
       },
       // 获取数据列表
       getDataList () {

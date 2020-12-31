@@ -1,5 +1,10 @@
 package com.bjc.gulimall.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.bjc.gulimall.product.dao.CategoryBrandRelationDao;
+import com.bjc.gulimall.product.entity.CategoryBrandRelationEntity;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,10 +21,14 @@ import com.bjc.common.utils.Query;
 import com.bjc.gulimall.product.dao.CategoryDao;
 import com.bjc.gulimall.product.entity.CategoryEntity;
 import com.bjc.gulimall.product.service.CategoryService;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
+
+    @Autowired
+    private CategoryBrandRelationDao categoryBrandRelationDao;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -59,6 +68,24 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
         // 逻辑删除
         baseMapper.deleteBatchIds(asList);
+    }
+
+    @Override
+    @Transactional
+    public void updateCategory(CategoryEntity category) {
+        // 1. 修改分类表
+        baseMapper.updateById(category);
+        // 2. 修改品牌分类关系表
+        if(StringUtils.isNotEmpty(category.getName())){
+            CategoryBrandRelationEntity entity = new CategoryBrandRelationEntity();
+            entity.setCatelogId(category.getCatId());
+            entity.setCatelogName(category.getName());
+            QueryWrapper<CategoryBrandRelationEntity> wraper = new QueryWrapper();
+            wraper.eq("catelog_id",category.getCatId());
+            categoryBrandRelationDao.update(entity,wraper);
+        }
+
+        // 3. TODO 修改其他分类关系
     }
 
     /*
