@@ -74,6 +74,7 @@
               width="150"
               label="操作">
               <template slot-scope="scope">
+                <el-button type="text" size="small" @click="relationHandle(scope.row.attrGroupId)">关联</el-button>
                 <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.attrGroupId)">修改</el-button>
                 <el-button type="text" size="small" @click="deleteHandle(scope.row.attrGroupId)">删除</el-button>
               </template>
@@ -131,6 +132,9 @@
       });
     },
     methods: {
+      relationHandle(attrGroupId){    // 属性分组与属性关联
+
+      },
       // category组件方法
       nodeClick({data,node,component}){
         console.log(data)
