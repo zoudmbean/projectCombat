@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 // import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.bjc.gulimall.product.vo.AttrGroupRelationVo;
 import com.bjc.gulimall.product.vo.AttrResponseVo;
 import com.bjc.gulimall.product.vo.AttrVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,9 +88,9 @@ public class AttrController {
         return R.ok();
     }
 
-    @GetMapping("/base/list/{catelogId}")
-    public R baseAttrList(@PathVariable Long catelogId,@RequestParam Map<String, Object> params){
-        PageUtils page = attrService.queryBaseAttrPage(params,catelogId);
+    @GetMapping("/{attrType}/list/{catelogId}")
+    public R baseAttrList(@PathVariable("attrType") String type,@PathVariable Long catelogId,@RequestParam Map<String, Object> params){
+        PageUtils page = attrService.queryBaseAttrPage(params,catelogId,type);
         return R.ok().put("page",page);
     }
 

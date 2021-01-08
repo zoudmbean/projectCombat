@@ -6,14 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 // import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.bjc.gulimall.product.entity.AttrEntity;
 import com.bjc.gulimall.product.entity.CategoryEntity;
+import com.bjc.gulimall.product.service.AttrService;
 import com.bjc.gulimall.product.service.CategoryService;
+import com.bjc.gulimall.product.vo.AttrGroupRelationVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.bjc.gulimall.product.entity.AttrGroupEntity;
 import com.bjc.gulimall.product.service.AttrGroupService;
@@ -37,6 +36,24 @@ public class AttrGroupController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private AttrService attrService;
+
+    // 删除关联关系
+    // product/attrgroup/attr/relation/delete
+    @PostMapping("/attr/relation/delete")
+    public R deleteRelation(@RequestBody List<AttrGroupRelationVo> vos){
+        attrService.deleteRelation(vos);
+        return R.ok();
+    }
+
+    // attrgroup/1/attr/relation
+    @GetMapping("/{attrGroupId}/attr/relation")
+    public R relation(@PathVariable("attrGroupId") Long attrGroupId){
+        List<AttrEntity> attrList = attrService.getRelationAttr(attrGroupId);
+        return R.ok().put("data", attrList);
+    }
 
     /**
      * 列表

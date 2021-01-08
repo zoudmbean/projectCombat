@@ -91,6 +91,9 @@
           </el-pagination>
           <!-- 弹窗, 新增 / 修改 -->
           <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+
+          <!-- 修改关联关系 -->
+          <relation-update v-if="relationVisible" ref="relationUpdate" @refreshData="getDataList"></relation-update>
         </div>
       </div></el-col>
     </el-row>
@@ -101,6 +104,7 @@
   import PubSub from 'pubsub-js'
   import Category from '../common/category.vue'
   import addOrUpdate from './attrgroup-add-or-update.vue'
+  import RelationUpdate from "./attr-group-relation";
   export default {
     data () {
       return {
@@ -114,12 +118,14 @@
         totalPage: 0,
         dataListLoading: false,
         dataListSelections: [],
-        addOrUpdateVisible: false
+        addOrUpdateVisible: false,
+        relationVisible: false
       }
     },
     components: {
       Category,
-      addOrUpdate
+      addOrUpdate,
+      RelationUpdate
     },
     activated () {
       this.getDataList()
@@ -133,9 +139,12 @@
     },
     methods: {
       relationHandle(attrGroupId){    // 属性分组与属性关联
-
+        this.relationVisible = true;
+        this.$nextTick(() => {
+          this.$refs.relationUpdate.init(attrGroupId);
+        });
       },
-      // category组件方法
+      // category组件方法  感知树节点被点击
       nodeClick({data,node,component}){
         console.log(data)
         console.log(data.catId);
