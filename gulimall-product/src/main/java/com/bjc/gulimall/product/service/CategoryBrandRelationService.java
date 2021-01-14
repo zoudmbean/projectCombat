@@ -3,8 +3,11 @@ package com.bjc.gulimall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.bjc.common.utils.PageUtils;
 import com.bjc.common.utils.R;
+import com.bjc.gulimall.product.entity.BrandEntity;
 import com.bjc.gulimall.product.entity.CategoryBrandRelationEntity;
+import com.bjc.gulimall.product.vo.BrandVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,5 +24,8 @@ public interface CategoryBrandRelationService extends IService<CategoryBrandRela
     R saveCategorybrandrelation(CategoryBrandRelationEntity categoryBrandRelationEntity);
 
     R queryPageByBrandId(Long brandId);
+
+    List<BrandEntity> getBrandsByCatId(Long catId);
+
 }
 

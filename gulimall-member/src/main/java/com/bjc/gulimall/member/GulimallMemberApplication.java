@@ -5,7 +5,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@EnableDiscoveryClient
+/**
+ * 1、想要远程调用别的服务
+ *      1）引入open feign
+ *      2）编写一个接口，告诉SpringCloud这个接口需要调用远程服务
+ *          2.1 声明接口的每一个方法都是调用哪个远程服务的请求
+ * 2. 开启远程调用功能（@EnableFeignClients(basePackages = "com.bjc.gulimall.member.feign")）
+ * */
+@EnableDiscoveryClient      // 开启服务注册与发现
 @EnableFeignClients(basePackages = "com.bjc.gulimall.member.feign")
 @SpringBootApplication
 public class GulimallMemberApplication {

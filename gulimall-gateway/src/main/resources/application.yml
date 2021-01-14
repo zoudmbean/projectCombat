@@ -31,6 +31,13 @@ spring:
           filters:
             - RewritePath=/api/thirdparty/(?<segment>.*),/$\{segment}      # 所有的路径都是以/api/thirdparty开始的,都重写成/api/thirdparty后面的内容
 
+        - id: member_route
+          uri: lb://gulimall-member
+          predicates:
+            - Path=/api/member/**               # 路径匹配   所有/member开头的请求都请求gulimall-member微服务
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}
+
         - id: admin_route
           uri: lb://renren-fast     # lb://gulimall-admin  表示负载均衡到renren-fast服务
           predicates:

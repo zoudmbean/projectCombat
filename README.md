@@ -107,3 +107,35 @@
 6）服务容错（限流、降级、熔断）：SpringCloud Alibaba Sentinel
 7）调用链监控：SpringCloud Sleuth
 8）分布式事务解决方案：SpringCloud Alibaba Seata(原Fesca)
+
+
+PubSub的使用：
+    1）安装
+    2）全局使用
+        2.1 在main.js中引入并注册
+        `
+            import PubSub from 'pubsub-js'
+            Vue.prototype.PubSub = PubSub   //组件发布订阅消息
+        `
+        2.2 在组件中通过this.PubSub即可订阅和发布消息了。
+        例如：
+            1）在category-cascader.vue中发布消息
+            `
+                this.PubSub.publish("catPath",v);
+            `
+            2）在brand-select中订阅消息
+            `
+                mounted() {
+                //监听三级分类消息的变化
+                this.subscribe = this.PubSub.subscribe("catPath", (msg, val) => {
+                  this.catId = val[val.length - 1];
+                  this.getCatBrands();
+                });
+              }
+            `
+    3）局部使用
+        3.1 在需要使用PubSub的组件中引入PubSub
+        `
+            import PubSub from 'pubsub-js'
+        `
+        3.2 然后可以根据全局方式订阅和发布消息了

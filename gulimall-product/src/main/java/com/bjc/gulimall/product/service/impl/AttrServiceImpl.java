@@ -62,7 +62,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         BeanUtils.copyProperties(attr,entity);
         // 保存基本信息
         baseMapper.insert(entity);
-        if(attr.getAttrType() == ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode()){        // 基础属性才需要保存关联关系
+        if(attr.getAttrType() == ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode() && attr.getAttrGroupId() != null){        // 基础属性才需要保存关联关系
             // 保存关联分组信息
             AttrAttrgroupRelationEntity relation = new AttrAttrgroupRelationEntity();
             relation.setAttrGroupId(attr.getAttrGroupId());
@@ -96,7 +96,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                 AttrAttrgroupRelationEntity relationEntity = relationDao.selectOne(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId()));
                 if (!ObjectUtils.isEmpty(relationEntity)) {
                     AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(relationEntity.getAttrGroupId());
-                    if(null != attrGroupEntity){
+                    if(null != attrGroupEntity && attrGroupEntity.getAttrGroupId() != null){
                         attrResponseVo.setGroupName(attrGroupEntity.getAttrGroupName());
                     }
                 }
@@ -203,7 +203,40 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         collect.stream().forEach(item -> {
             query.or(q1 -> q1.eq("attr_id",item.getAttrId()).eq("attr_group_id",item.getAttrGroupId()));
         });
+
         relationDao.delete(query);
+    }
+
+    /** 获取当前分组没有关联的所有属性 */
+    @Override
+    public PageUtils getNoRelationAttr(Map<String, Object> params, Long attrGroupId) {
+        // 1. 当前分组只能关联自己所属的分类里面的属性
+        //      1.1 查询当前分组的信息
+        AttrGroupEntity attrGroupEntity = attrGroupDao.selectById(attrGroupId);
+        //      1.2 获取当前分类ID
+        Long catelogId = attrGroupEntity.getCatelogId();
+
+        // 2. 当前分组只能关联别的分组没有引用的属性
+        //      2.1 当前分类下的其他分组
+        List<AttrGroupEntity> groups = attrGroupDao.selectList(new QueryWrapper<AttrGroupEntity>().eq("catelog_id", catelogId));
+        //      2.2 这些分组关联的属性
+        List<Long> sttrGroupsids = groups.stream().map(AttrGroupEntity::getAttrGroupId).collect(Collectors.toList());
+        List<AttrAttrgroupRelationEntity> groupids = relationDao.selectList(new QueryWrapper<AttrAttrgroupRelationEntity>().in("attr_group_id", sttrGroupsids));
+        List<Long> attrIds = groupids.stream().map(AttrAttrgroupRelationEntity::getAttrId).collect(Collectors.toList());
+        //      2.3 从当前分类的所有属性中移除这些属性
+        QueryWrapper<AttrEntity> wraper = new QueryWrapper<AttrEntity>().eq("catelog_id", catelogId).eq("attr_type",ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode());
+        if(!CollectionUtils.isEmpty(attrIds)){
+            wraper.notIn("attr_id", attrIds);
+        }
+        String key = (String) params.get("key");
+        if(StringUtils.isNotEmpty(key)){
+            wraper.and(w->{
+                w.eq("attr_id",key).or().like("attr_name",key);
+            });
+        }
+        IPage<AttrEntity> page = this.page(new Query<AttrEntity>().getPage(params), wraper);
+        PageUtils pageUtils = new PageUtils(page);
+        return pageUtils;
     }
 
 }
