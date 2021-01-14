@@ -9,7 +9,7 @@ spring:
     #  access-key: LTAI4GHU。。。
     #  secret-key: nLLv4x0a2。。。
     #  oss:
-    #    endpoint: oss-cn-
+    #    endpoint: oss-cn-hangzhou.aliyuncs.com
 
 server:
   port: 9000

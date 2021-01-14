@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2016-2019 人人开源 All rights reserved.
- *
- * https://www.renren.io
- *
- * 版权所有，侵权必究！
- */
 
 package com.bjc.common.utils;
 
@@ -55,6 +48,10 @@ public class R extends HashMap<String, Object> {
 
 	public static R ok() {
 		return new R();
+	}
+
+	public Integer getCode() {
+		return Integer.parseInt(this.get("code"));
 	}
 
 	public R put(String key, Object value) {

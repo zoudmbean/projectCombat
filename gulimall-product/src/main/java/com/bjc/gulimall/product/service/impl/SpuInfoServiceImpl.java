@@ -1,6 +1,10 @@
 package com.bjc.gulimall.product.service.impl;
 
+import com.bjc.common.to.SkuReductionTo;
+import com.bjc.common.to.SpuBoundTo;
+import com.bjc.common.utils.R;
 import com.bjc.gulimall.product.entity.*;
+import com.bjc.gulimall.product.feign.CouponFeignService;
 import com.bjc.gulimall.product.service.*;
 import com.bjc.gulimall.product.vo.*;
 import org.springframework.beans.BeanUtils;
@@ -46,6 +50,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     private SkuSaleAttrValueService skuSaleAttrValueService;
+
+    @Autowired
+    private CouponFeignService couponFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -95,6 +102,14 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
 
         // 5. 保存spu的积分信息（跨库）      sms_spu_bounds
+        Bounds bounds = vo.getBounds();
+        SpuBoundTo spuBoundTo = new SpuBoundTo();
+        BeanUtils.copyProperties(bounds,spuBoundTo);
+        spuBoundTo.setSpuId(spuInfoEntity.getId());
+        R r = couponFeignService.saveSpuBounds(spuBoundTo);
+        if(r.getCode() != 0){
+            log.error("远程保存SPU积分信息失败！");
+        }
 
         // 6. 保存当前spu对应的所有sku信息
         //  6.1 sku基本信息     pms_sku_info
@@ -149,11 +164,16 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                     skuSaleAttrValueService.saveBatch(collect);
                 }
 
+                //  6.4 sku的优惠满减信息（跨库）  sms_sku_ladder   sms_sku_full_reduction  sms_member_price
+                SkuReductionTo skuReductionTo = new SkuReductionTo();
+                BeanUtils.copyProperties(sku,skuReductionTo);
+                skuReductionTo.setSkuId(skuId);
+                R r1 =couponFeignService.saveSkuReduction(skuReductionTo);
+                if(r1.getCode() != 0){
+                    log.error("远程保存优惠信息失败！");
+                }
             });
         }
-
-
-        //  6.4 sku的优惠满减信息（跨库）  sms_sku_ladder   sms_sku_full_reduction  sms_member_price
     }
 
     /** 保存spu基本信息 */

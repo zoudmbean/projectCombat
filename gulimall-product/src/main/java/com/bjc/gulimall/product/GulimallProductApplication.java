@@ -4,6 +4,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -91,8 +92,24 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
             }
        ·
+  Feign的使用步骤：
+  *     1）在需要远程调用的服务的主启动类上添加注解@EnableFeignClients，开启feign功能
+  *     2）定义feign接口，在接口上标注注解@FeignClient并指定要调用的服务名。例如；@FeignClient("gulimall-coupon")
+  *     3）在需要调用的地方注入feign接口。
+  *     例如；
+  *     ·
+  *         @Autowired
+            private CouponFeignService couponFeignService;
+  *     ·
+  *     4）在feign接口中编写调用方法，并指定访问路径
+  *     例如：
+  *         ·
+  *             @PostMapping("/coupon/spubounds/save")
+                R saveSpuBounds(@RequestBody SpuBoundTo spuBoundTo);
+  *         ·
 * */
 @MapperScan("com.bjc.gulimall.product.dao")
+@EnableFeignClients(basePackages = "com.bjc.gulimall.product.feign")        // 商品服务开启远程调用服务功能并指定feign接口位置（注意：即使不指定也可以扫描到有@FeignClient注解的远程服务接口）
 @EnableDiscoveryClient
 @SpringBootApplication
 public class GulimallProductApplication {
