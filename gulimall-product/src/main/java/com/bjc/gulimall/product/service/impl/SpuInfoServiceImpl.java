@@ -11,6 +11,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import com.bjc.common.utils.Query;
 import com.bjc.gulimall.product.dao.SpuInfoDao;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 
 @Service("spuInfoService")
@@ -64,6 +66,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         return new PageUtils(page);
     }
 
+    // TODO 还有事务相关高级用法没做
     @Transactional
     @Override
     public void saveSpuInfo(SpuSaveVo vo) {
@@ -77,7 +80,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         List<String> decript = vo.getDecript();
         SpuInfoDescEntity spuInfoDescEntity = new SpuInfoDescEntity();
         spuInfoDescEntity.setSpuId(spuInfoEntity.getId());
-        spuInfoEntity.setSpuDescription(String.join(",",decript));
+        spuInfoDescEntity.setDecript(String.join(",",decript));
         spuInfoDescService.saveSpuInfoDesc(spuInfoDescEntity);
 
         // 3. 保存spu的图片集     pms_spu_images
@@ -127,9 +130,11 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 List<SkuImagesEntity> skuImagesEntityList = null;
                 if(!CollectionUtils.isEmpty(skuImages)){
                     // 设置skuInfo的默认图片
-                    String defaultImg = skuImages.stream().filter(img -> img.getDefaultImg() == 1).map(Images::getImgUrl).collect(Collectors.toList()).get(0);
-                    skuInfoEntity.setSkuDefaultImg(defaultImg);
-
+                    List<String> imgs = skuImages.stream().filter(img -> img.getDefaultImg() == 1).map(Images::getImgUrl).collect(Collectors.toList());
+                    if(!CollectionUtils.isEmpty(imgs)){
+                        String defaultImg = imgs.get(0);
+                        skuInfoEntity.setSkuDefaultImg(defaultImg);
+                    }
 
                     //  6.2 sku的图片信息    pms_sku_images
                     skuImagesEntityList = skuImages.stream().map(img -> {
@@ -148,8 +153,15 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
                 // 6.2 sku的图片信息    pms_sku_images
                 if(!CollectionUtils.isEmpty(skuImagesEntityList)){
-                    skuImagesEntityList.parallelStream().forEach(item -> item.setSkuId(skuId));
-                    skuImagesService.saveBatch(skuImagesEntityList);
+                    List<SkuImagesEntity> imgEntities = skuImagesEntityList.stream().map(img -> {
+                        SkuImagesEntity skuImagesEntity = new SkuImagesEntity();
+                        skuImagesEntity.setSkuId(skuId)
+                                .setImgUrl(img.getImgUrl())
+                                .setDefaultImg(img.getDefaultImg());
+                        return skuImagesEntity;
+                    }).filter(item -> !StringUtils.isEmpty(item.getImgUrl())).collect(Collectors.toList());
+                    // 没有图片路径的无需保存
+                    skuImagesService.saveBatch(imgEntities);
                 }
 
                 //  6.3 sku的销售属性信息    pms_sku_sale_attr_value
@@ -168,9 +180,11 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 SkuReductionTo skuReductionTo = new SkuReductionTo();
                 BeanUtils.copyProperties(sku,skuReductionTo);
                 skuReductionTo.setSkuId(skuId);
-                R r1 =couponFeignService.saveSkuReduction(skuReductionTo);
-                if(r1.getCode() != 0){
-                    log.error("远程保存优惠信息失败！");
+                if(skuReductionTo.getFullCount() > 0 || skuReductionTo.getFullPrice().compareTo(new BigDecimal("0")) == 1){
+                    R r1 =couponFeignService.saveSkuReduction(skuReductionTo);
+                    if(r1.getCode() != 0){
+                        log.error("远程保存优惠信息失败！");
+                    }
                 }
             });
         }

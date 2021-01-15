@@ -51,7 +51,7 @@ public class R extends HashMap<String, Object> {
 	}
 
 	public Integer getCode() {
-		return Integer.parseInt(this.get("code"));
+		return Integer.parseInt(this.get("code").toString());
 	}
 
 	public R put(String key, Object value) {
