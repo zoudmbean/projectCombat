@@ -37,7 +37,7 @@ public class SkuInfoController {
     @RequestMapping("/list")
     // @RequiresPermissions("product:skuinfo:list")  // shiro注解
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = skuInfoService.queryPage(params);
+        PageUtils page = skuInfoService.queryPageByCondition(params);
 
         return R.ok().put("page", page);
     }

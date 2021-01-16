@@ -22,12 +22,7 @@ export default {
     //这里存放数据
     return {
       catId: 0,
-      brands: [
-        {
-          label: "a",
-          value: 1
-        }
-      ],
+      brands: [],
       brandId: "",
       subscribe: null
     };
@@ -75,5 +70,5 @@ export default {
   activated() {} //如果页面有keep-alive缓存功能，这个函数会触发
 };
 </script>
-<style scoped>
+<style>
 </style>

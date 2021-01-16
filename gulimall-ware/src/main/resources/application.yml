@@ -1,5 +1,3 @@
-
-
 spring:
   datasource:
     username: root
@@ -10,7 +8,7 @@ spring:
     name: gulimall-ware
   cloud:
     nacos:
-      discovery:
+      discovery:                          # 加入注册中心
         server-addr: 127.0.0.1:8848
 
 mybatis-plus:
@@ -21,3 +19,7 @@ mybatis-plus:
 
 server:
   port: 8085
+
+logging:
+  level:
+    com.bjc.gulimall: debug
