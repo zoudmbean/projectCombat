@@ -10,6 +10,8 @@ spring:
     nacos:
       discovery:                          # 加入注册中心
         server-addr: 127.0.0.1:8848
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:SS
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml   # 不配置默认就是这个目录
@@ -23,3 +25,4 @@ server:
 logging:
   level:
     com.bjc.gulimall: debug
+

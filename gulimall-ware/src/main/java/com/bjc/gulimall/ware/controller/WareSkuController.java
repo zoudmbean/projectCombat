@@ -37,7 +37,7 @@ public class WareSkuController {
     @RequestMapping("/list")
     // @RequiresPermissions("ware:waresku:list")  // shiro注解
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = wareSkuService.queryPage(params);
+        PageUtils page = wareSkuService.queryPageCondition(params);
 
         return R.ok().put("page", page);
     }
