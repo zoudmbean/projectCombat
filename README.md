@@ -139,3 +139,12 @@ PubSub的使用：
             import PubSub from 'pubsub-js'
         `
         3.2 然后可以根据全局方式订阅和发布消息了
+
+总结：
+	1. 分布式基础概念：微服务、注册中心、配置中心、远程调用、Feign、网关
+	2. 基础开发：SpringBoot2.0、SpringCloud、mybatis-plus、vue组件化、阿里云存储对象
+	3. 环境：Vagrant、Linux、Docker、MySQL、Redis、逆向工程&人人开源
+	4. 开发规范：
+		4.1 数据校验JSR303、全局异常处理、全局统一返回、全局跨域处理
+		4.2 枚举状态、业务状态码、VO与TO与PO的划分、逻辑删除
+		4.3 Lombok：@Data、@Slffj

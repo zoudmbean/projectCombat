@@ -153,7 +153,7 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
         entity.setStatus(flag ? WareConstant.PurchaseStatusEnum.FINASH.getCode() : WareConstant.PurchaseStatusEnum.HASEERROR.getCode());
         entity.setUpdateTime(new Date());
         // 3. 将成功采购的进行入库
-
+        this.updateById(entity);
     }
 
 }

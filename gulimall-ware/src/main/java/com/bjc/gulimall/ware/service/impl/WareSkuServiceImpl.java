@@ -1,7 +1,10 @@
 package com.bjc.gulimall.ware.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.bjc.common.utils.R;
+import com.bjc.gulimall.ware.feign.ProductFeignService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,6 +59,9 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         return new PageUtils(page);
     }
 
+    @Autowired
+    private ProductFeignService productFeignService;
+
     @Transactional
     @Override
     public void addStore(Long skuId, Long wareId, Integer skuNum) {
@@ -70,6 +76,17 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
                     .mapToInt(ware -> Optional.ofNullable(ware.getStock()).orElse(0))
                     .reduce(0,(l,r) -> l + r);
             entity.setStock(stock + entity.getStock());
+            entity.setStockLocked(1);
+            try{
+                // TODO 远程查询sku的名称,如果失败，整个事务无需回滚
+                // 1. 通过try-catch不处理方式
+                // 2. 还有一种办法可以让异常出现不回滚的方法
+                R info = productFeignService.info(skuId);
+                if(info.getCode() == 0 ){
+                    Map<String,Object> data = (Map<String,Object>) info.get("skuInfo");
+                    entity.setSkuName((String) data.get("skuName"));
+                }
+            }catch (Exception e){}
         }
         this.saveOrUpdate(entity,wraper);
     }
