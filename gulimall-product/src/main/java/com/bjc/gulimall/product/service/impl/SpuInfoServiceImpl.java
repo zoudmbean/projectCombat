@@ -269,9 +269,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         try {
             List<Long> skuIds = skus.stream().map(SkuInfoEntity::getSkuId).collect(Collectors.toList());
             R skusHasStock = warefeignService.getSkusHasStock(skuIds);
-// 这里因为TypeReference的构造器是protected，所以，需要使用内部内对象，因此加了{}
-TypeReference<List<SkuHasStockTo>> typeReference = new TypeReference<List<SkuHasStockTo>>() {};
-List<SkuHasStockTo> datas = skusHasStock.getData(typeReference);
+            // 这里因为TypeReference的构造器是protected，所以，需要使用内部内对象，因此加了{}
+            TypeReference<List<SkuHasStockTo>> typeReference = new TypeReference<List<SkuHasStockTo>>() {};
+            List<SkuHasStockTo> datas = skusHasStock.getData(typeReference);
             stockMap = datas.stream().collect(Collectors.toMap(SkuHasStockTo::getSkuId, SkuHasStockTo::getHasStock));
         } catch (Exception e) {
             log.error("库存服务查询异常：",e);
