@@ -1,5 +1,6 @@
 package com.bjc.gulimall.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.bjc.common.constant.ProductConstant;
 import com.bjc.gulimall.product.dao.AttrAttrgroupRelationDao;
 import com.bjc.gulimall.product.dao.AttrGroupDao;
@@ -237,6 +238,18 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         IPage<AttrEntity> page = this.page(new Query<AttrEntity>().getPage(params), wraper);
         PageUtils pageUtils = new PageUtils(page);
         return pageUtils;
+    }
+
+    /* 在指定的所有属性集合中挑出检索属性 */
+    @Override
+    public List<Long> selectSerchAttrIds(List<Long> attrIds) {
+        QueryWrapper<AttrEntity> wraper = new QueryWrapper<>();
+        wraper.eq("search_type",1).in("attr_id",attrIds);
+        List<AttrEntity> attrEntities = this.baseMapper.selectList(wraper);
+        if(CollectionUtils.isEmpty(attrEntities)){
+            return null;
+        }
+        return attrEntities.stream().map(AttrEntity::getAttrId).collect(Collectors.toList());
     }
 
 }

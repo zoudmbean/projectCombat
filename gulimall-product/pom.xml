@@ -46,12 +46,12 @@
             <scope>test</scope>
         </dependency>
 
-<!-- 添加阿里云OSS对象存储服务SDK API -->
-<dependency>
-    <groupId>com.aliyun.oss</groupId>
-    <artifactId>aliyun-sdk-oss</artifactId>
-    <version>3.10.2</version>
-</dependency>
+    <!-- 添加阿里云OSS对象存储服务SDK API -->
+    <dependency>
+        <groupId>com.aliyun.oss</groupId>
+        <artifactId>aliyun-sdk-oss</artifactId>
+        <version>3.10.2</version>
+    </dependency>
 
     </dependencies>
 

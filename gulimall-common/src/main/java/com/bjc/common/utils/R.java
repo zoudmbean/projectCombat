@@ -1,6 +1,8 @@
 
 package com.bjc.common.utils;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import org.apache.http.HttpStatus;
 
 import java.util.HashMap;
@@ -13,6 +15,19 @@ import java.util.Map;
  */
 public class R extends HashMap<String, Object> {
 	private static final long serialVersionUID = 1L;
+
+	// 利用fastJSON提供的typeReference可以传入复杂的类型
+public <T> T getData(TypeReference<T> typeReference){
+	Object obj = get("data");
+	String jsonStr = JSON.toJSONString(obj);
+	T t = JSON.parseObject(jsonStr,typeReference);
+	return t;
+}
+
+	public R setData(Object data){
+		put("data",data);
+		return this;
+	}
 
 	public R() {
 		put("code", 0);
