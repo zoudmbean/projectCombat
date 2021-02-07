@@ -107,6 +107,22 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
   *             @PostMapping("/coupon/spubounds/save")
                 R saveSpuBounds(@RequestBody SpuBoundTo spuBoundTo);
   *         ·
+  * 模板引擎
+  *     1）thymeleaf-starter引入
+  *     2）关闭thymeleaf缓存（开发中用到，方便调试）
+  *     3）静态资源放在static文件夹下，就可以按照路径直接访问
+  *     4）页面放在templates目录下，就可以直接访问，默认的页面是index.html
+  *     5）页面修改不重启服务器实时更新
+  *         5.1 引入依赖
+  *         `
+  *             <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-devtools</artifactId>
+                    <!-- 可选的不能忘记了 -->
+                    <optional>true</optional>
+                </dependency>
+  *         `
+  *         5.2 修改完页面，使用ctrl+f9（ctrl+shift+f9） 重新编译页面
 * */
 @MapperScan("com.bjc.gulimall.product.dao")
 @EnableFeignClients(basePackages = "com.bjc.gulimall.product.feign")        // 商品服务开启远程调用服务功能并指定feign接口位置（注意：即使不指定也可以扫描到有@FeignClient注解的远程服务接口）

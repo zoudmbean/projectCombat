@@ -12,6 +12,10 @@ spring:
         server-addr: 127.0.0.1:8848   # 注册中心地址
   jackson:                            # 日期格式化
     date-format: yyyy-MM-dd HH:mm:SS
+  thymeleaf:
+    cache: false                      # 关闭thymeleaf的缓存  这样开发期间就行能看实时效果
+    #prefix: classpath:/templates      # 前缀  默认值classpath:/templates  所以，如果前缀是classpath:/templates 这个可以不配
+    #suffix: .html                     # 后缀 .html 默认值是.html
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml   # 不配置默认就是这个目录
@@ -20,9 +24,9 @@ mybatis-plus:
       id-type: auto # 配置主键自增
       logic-delete-value: 0         # 逻辑删除值
       logic-not-delete-value: 1     # 逻辑不删除值
-
 server:
   port: 8083
 logging:
   level:
     com.bjc.gulimall: debug
+
