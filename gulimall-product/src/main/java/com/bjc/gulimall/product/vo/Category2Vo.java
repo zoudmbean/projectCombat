@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.List;
 
 // 二级分类VO
@@ -12,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class Category2Vo {
+public class Category2Vo implements Serializable {
     private String catalog1Id;             // 一级父分类id
     private List<CateLog3Vo> catalog3List;     // 三级子分类
     private String id;
