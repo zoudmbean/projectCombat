@@ -52,10 +52,15 @@ spring:
           filters:
             - RewritePath=/api/(?<segment>.*),/renren-fast/$\{segment}       # 所有的路径都是以/api开始的,都重写成/renren-fast/指定的路径
 
-        - id: gulimall_host
+        - id: gulimall_host_route
           uri: lb://gulimall-product
           predicates:
-            - Host=**.gulimall.com,gulimall.com   #  主机host断言  任意的带gulimall.com的域名
+            - Host=gulimall.com   #  主机host断言  任意的带gulimall.com的域名
+
+        - id: gulimall_search_route
+          uri: lb://gulimall-search
+          predicates:
+            - Host=search.gulimall.com   #  主机host断言  任意的带gulimall.com的域名
 
 
 # 定义一个规则，只要是前端发出的请求，都带上/api

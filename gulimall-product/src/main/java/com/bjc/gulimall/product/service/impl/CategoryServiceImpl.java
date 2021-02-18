@@ -136,7 +136,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     @Override
     // 每个需要缓存的数据都来指定要放到那个名字的缓存【缓存的分区】
     // @Cacheable(value={"category"},key = "#root.methodName")  // 代表当前方法的结果需要缓存，如果缓存中有，方法不用调用，如果缓存中没有，会调用方法，最后将方法的结果放入缓存
-    @Cacheable(value={"category"},key = "#root.methodName")  // 代表当前方法的结果需要缓存，如果缓存中有，方法不用调用，如果缓存中没有，会调用方法，最后将方法的结果放入缓存
+    @Cacheable(value={"category"},key = "#root.methodName",sync = true)  // 代表当前方法的结果需要缓存，如果缓存中有，方法不用调用，如果缓存中没有，会调用方法，最后将方法的结果放入缓存
     public List<CategoryEntity> getLevel1Categorys() {
         System.out.println("getLevel1Categorys...");
         List<CategoryEntity> entities = this.baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
