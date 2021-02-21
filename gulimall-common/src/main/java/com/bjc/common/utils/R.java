@@ -17,6 +17,14 @@ public class R extends HashMap<String, Object> {
 	private static final long serialVersionUID = 1L;
 
 	// 利用fastJSON提供的typeReference可以传入复杂的类型
+	public <T> T getData(String key,TypeReference<T> typeReference){
+		Object obj = get(key);
+		String jsonStr = JSON.toJSONString(obj);
+		T t = JSON.parseObject(jsonStr,typeReference);
+		return t;
+	}
+
+	// 利用fastJSON提供的typeReference可以传入复杂的类型
 	public <T> T getData(TypeReference<T> typeReference){
 		Object obj = get("data");
 		String jsonStr = JSON.toJSONString(obj);

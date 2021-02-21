@@ -1,8 +1,6 @@
 package com.bjc.gulimall.product.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 // import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.bjc.common.validation.UpdateGroup;
@@ -38,6 +36,13 @@ public class BrandController {
 
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
+
+    @GetMapping("/infos")
+    public R brandsInfos(@RequestParam("brandIds") List<Long> brandIds){
+        Collection<BrandEntity> brandEntities = brandService.listByIds(brandIds);
+        return R.ok().put("brand", brandEntities);
+    }
+
 
     /**
      * 列表

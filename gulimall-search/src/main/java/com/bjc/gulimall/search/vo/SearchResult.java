@@ -3,6 +3,7 @@ package com.bjc.gulimall.search.vo;
 import com.bjc.common.to.es.SkuEsModel;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -20,6 +21,28 @@ public class SearchResult {
     // 总页码
     private Integer totalPages;
 
+    // 分页导航
+    private List<Integer> pageNavs = new ArrayList<>();
+    public List<Integer> getPageNavs() {
+        if(null != this.totalPages && this.totalPages>0){
+            for(int n = 0 ; n < this.totalPages ; n++){
+                pageNavs.add(n+1);
+            }
+        }
+        return pageNavs;
+    }
+
+    // 面包屑导航数据
+    private List<NavVo> navs = new ArrayList<>();
+
+    // 导航内部内
+    @Data
+    public static class NavVo {
+        private String navName;
+        private String navValue;
+        private String link;
+    }
+
     // 当前查询到的结果，所有涉及到的品牌
     private List<BrandVo> brandVos;
 
@@ -28,6 +51,8 @@ public class SearchResult {
 
     // 当前查询到的结果，所有涉及到的所有属性
     private List<AttrVo> attrs;
+
+    private List<Long> attrIds = new ArrayList<>();
 
     /*
     * 品牌信息封装成内部类
