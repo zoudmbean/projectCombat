@@ -55,7 +55,7 @@ spring:
         - id: gulimall_host_route
           uri: lb://gulimall-product
           predicates:
-            - Host=gulimall.com   #  主机host断言  任意的带gulimall.com的域名
+            - Host=gulimall.com,item.gulimall.com   #  主机host断言  任意的带gulimall.com的域名
 
         - id: gulimall_search_route
           uri: lb://gulimall-search
