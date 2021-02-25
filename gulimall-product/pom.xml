@@ -97,6 +97,13 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
+        <!-- spring的提示工具 添加该坐标这样在properties配置文件中就可以读取到并提示 @ConfigurationProperties 标注的配置类中的信息了-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>

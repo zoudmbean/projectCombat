@@ -4,8 +4,13 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.PutObjectRequest;
+import com.bjc.gulimall.product.dao.AttrGroupDao;
+import com.bjc.gulimall.product.dao.SkuSaleAttrValueDao;
 import com.bjc.gulimall.product.entity.BrandEntity;
 import com.bjc.gulimall.product.service.BrandService;
+import com.bjc.gulimall.product.vo.ItemSaleAttrVo;
+import com.bjc.gulimall.product.vo.SkuItemVo;
+import com.bjc.gulimall.product.vo.spuItemAttrGroupVo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.List;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -24,14 +30,33 @@ public class GulimallProductApplicationTests {
     @Autowired
     BrandService brandService;
 
+    //@Autowired
+    //private OSSClient ossClient;
+
     @Autowired
-    private OSSClient ossClient;
+    AttrGroupDao attrGroupDao;
+
+    @Autowired
+    SkuSaleAttrValueDao skuSaleAttrValueDao;
+
+    @Test
+    public void test04(){
+        List<ItemSaleAttrVo> saleAttrsBySpuId = skuSaleAttrValueDao.getSaleAttrsBySpuId(6L);
+        System.out.println(saleAttrsBySpuId);
+
+    }
+
+    @Test
+    public void test03(){
+        List<spuItemAttrGroupVo> group = attrGroupDao.getAttrGroupWithAttrsBySpuId(6L, 1111133L);
+        System.out.println(group);
+    }
 
     @Test
     public void test02() throws FileNotFoundException {
         InputStream in = new FileInputStream("D:\\1.jpg");
-        ossClient.putObject("zoudm-gulimall", "1.png",in);
-        ossClient.shutdown();
+       // ossClient.putObject("zoudm-gulimall", "1.png",in);
+       // ossClient.shutdown();
     }
 
     /*@Test
