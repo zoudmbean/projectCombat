@@ -1,0 +1,20 @@
+server:
+  port: 20000
+
+spring:
+  application:
+    name: gulimall-auth-server
+    thymeleaf:
+      cache: false
+      prefix: classpath:/templates      # 前缀  默认值classpath:/templates  所以，如果前缀是classpath:/templates 这个可以不配
+      suffix: .html                     # 后缀 .html 默认值是.html
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+
+  redis:
+    host: 192.168.56.10
+    #password:
+    port: 6379    #  默认端口号
+

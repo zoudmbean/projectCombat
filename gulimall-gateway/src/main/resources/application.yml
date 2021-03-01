@@ -62,6 +62,11 @@ spring:
           predicates:
             - Host=search.gulimall.com   #  主机host断言  任意的带gulimall.com的域名
 
+        - id: gulimall_auth_server_route
+          uri: lb://gulimall-auth-server
+          predicates:
+            - Host=auth.gulimall.com   #  主机host断言  任意的带gulimall.com的域名
+
 
 # 定义一个规则，只要是前端发出的请求，都带上/api
 

@@ -4,7 +4,11 @@ import java.util.Arrays;
 import java.util.Map;
 
 // import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.bjc.common.enums.BizCodeEnume;
+import com.bjc.gulimall.member.exception.PhoneExistException;
+import com.bjc.gulimall.member.exception.UserNameExistException;
 import com.bjc.gulimall.member.feign.CouponFeignService;
+import com.bjc.gulimall.member.vo.MemberRegistVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +39,20 @@ public class MemberController {
     public R test(){
         return R.ok().put("member",new MemberEntity().setNickname("张三"))
                     .put("coupons",couponFeignService.memberCoupons().get("coupons"));
+    }
+
+    @PostMapping("/regist")
+    public R regist(@RequestBody MemberRegistVo memberRegist){
+        try {
+            memberService.regist(memberRegist);
+        } catch (PhoneExistException e) {
+            return R.error(BizCodeEnume.PHONE_EXIST_EXCEPTION.getCode(), BizCodeEnume.PHONE_EXIST_EXCEPTION.getMsg());
+        } catch (UserNameExistException e){
+            return R.error(BizCodeEnume.USER_EXIST_EXCEPTION.getCode(), BizCodeEnume.USER_EXIST_EXCEPTION.getMsg());
+        } catch (Exception e){
+            return R.error(500, "未知异常");
+        }
+        return R.ok();
     }
 
     /**

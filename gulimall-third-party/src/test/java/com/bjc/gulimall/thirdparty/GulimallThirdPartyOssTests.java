@@ -13,7 +13,7 @@ import java.io.InputStream;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class GulimallThirdPartyApplicationTests {
+public class GulimallThirdPartyOssTests {
 
     @Autowired
     private OSSClient ossClient;
