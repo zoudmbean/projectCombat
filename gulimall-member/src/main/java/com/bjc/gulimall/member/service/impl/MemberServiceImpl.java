@@ -4,6 +4,7 @@ import com.bjc.gulimall.member.dao.MemberLevelDao;
 import com.bjc.gulimall.member.entity.MemberLevelEntity;
 import com.bjc.gulimall.member.exception.PhoneExistException;
 import com.bjc.gulimall.member.exception.UserNameExistException;
+import com.bjc.gulimall.member.vo.MemberLoginVo;
 import com.bjc.gulimall.member.vo.MemberRegistVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,6 +21,7 @@ import com.bjc.common.utils.Query;
 import com.bjc.gulimall.member.dao.MemberDao;
 import com.bjc.gulimall.member.entity.MemberEntity;
 import com.bjc.gulimall.member.service.MemberService;
+import org.springframework.util.ObjectUtils;
 
 
 @Service("memberService")
@@ -77,6 +79,23 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
         if(null == selectCount || selectCount > 0){
             throw new UserNameExistException();
         }
+    }
+
+    @Override
+    public MemberEntity login(MemberLoginVo memberLoginVo) {
+        MemberEntity memberEntity = this.baseMapper.selectOne(new QueryWrapper<MemberEntity>().eq("username", memberLoginVo.getLoginacct()).or().eq("mobile", memberLoginVo.getLoginacct()));
+        // 如果数据库查询数据不为空
+        if(!ObjectUtils.isEmpty(memberEntity)){
+            String password = memberEntity.getPassword();
+            BCryptPasswordEncoder bp = new BCryptPasswordEncoder();
+            // 比较密码是否匹配
+            boolean matches = bp.matches(memberLoginVo.getPassword(), memberEntity.getPassword());
+            // 匹配才返回
+            if(matches){
+                return memberEntity;
+            }
+        }
+        return null;
     }
 
 }

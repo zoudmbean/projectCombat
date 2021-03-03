@@ -6,12 +6,14 @@ import com.bjc.common.enums.BizCodeEnume;
 import com.bjc.common.utils.R;
 import com.bjc.gulimall.auth.feign.MemberFeignService;
 import com.bjc.gulimall.auth.feign.ThirdPartFeignService;
+import com.bjc.gulimall.auth.vo.UserLoginVo;
 import com.bjc.gulimall.auth.vo.UserRegistVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -119,7 +122,7 @@ public class LoginController {
             //  2.2 调用远程服务，注册
             R regist = memberFeignService.regist(user);
             if(regist.getCode() != 0){
-                errMap.put("msg",regist.getData(new TypeReference<String>(){}));
+                errMap.put("msg",regist.getData("msg",new TypeReference<String>(){}));
                 model.addFlashAttribute("errors",errMap);
                 return "redirect:http://auth.gulimall.com/reg.html";
             }
@@ -131,5 +134,32 @@ public class LoginController {
 
         // 注册成功，返回登录页面
         return "redirect:http://auth.gulimall.com/login.html";
+    }
+
+    @PostMapping("/login")
+    public String login(@Valid UserLoginVo user,BindingResult result,RedirectAttributes model){
+        Map<String, String> errMap = new HashMap<>();
+        if(!CollectionUtils.isEmpty(result.getFieldErrors())){
+            result.getFieldErrors().stream().forEach(fieldError -> {
+                String field = fieldError.getField();
+                fieldError.getDefaultMessage();
+
+            });
+
+            errMap = result.getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage, (e1, e2) -> e2));
+            model.addFlashAttribute("errors",errMap);
+            return "redirect:http://auth.gulimall.com/login.html";
+        }
+
+        // 远程登录
+        R login = memberFeignService.login(user);
+        if(login.getCode() != 0){
+            String err = login.getData("msg", new TypeReference<String>() {});
+            errMap.put("msg",err);
+            model.addFlashAttribute("errors",errMap);
+            return "redirect:http://auth.gulimall.com/login.html";
+        }
+        // 重定向到商城首页
+        return "redirect:http://gulimall.com";
     }
 }

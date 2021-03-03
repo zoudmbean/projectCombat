@@ -8,8 +8,10 @@ import com.bjc.common.enums.BizCodeEnume;
 import com.bjc.gulimall.member.exception.PhoneExistException;
 import com.bjc.gulimall.member.exception.UserNameExistException;
 import com.bjc.gulimall.member.feign.CouponFeignService;
+import com.bjc.gulimall.member.vo.MemberLoginVo;
 import com.bjc.gulimall.member.vo.MemberRegistVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import com.bjc.gulimall.member.entity.MemberEntity;
@@ -41,6 +43,9 @@ public class MemberController {
                     .put("coupons",couponFeignService.memberCoupons().get("coupons"));
     }
 
+    /*
+    * 注册
+    * */
     @PostMapping("/regist")
     public R regist(@RequestBody MemberRegistVo memberRegist){
         try {
@@ -53,6 +58,16 @@ public class MemberController {
             return R.error(500, "未知异常");
         }
         return R.ok();
+    }
+
+    @PostMapping("/login")
+    public R login(@RequestBody MemberLoginVo memberLoginVo){
+        MemberEntity member =  memberService.login(memberLoginVo);
+        if(ObjectUtils.isEmpty(member)){
+            return R.error(BizCodeEnume.LOGINACCT_PASSWORD_INVAILD_EXCEPTION.getCode(),BizCodeEnume.LOGINACCT_PASSWORD_INVAILD_EXCEPTION.getMsg());
+        } else {
+            return R.ok();
+        }
     }
 
     /**
