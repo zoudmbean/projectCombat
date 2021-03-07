@@ -1,5 +1,6 @@
 package com.bjc.gulimall.auth.feign;
 
+import com.alibaba.fastjson.JSONObject;
 import com.bjc.common.utils.R;
 import com.bjc.gulimall.auth.vo.UserLoginVo;
 import com.bjc.gulimall.auth.vo.UserRegistVo;
@@ -14,4 +15,8 @@ public interface MemberFeignService {
 
     @PostMapping("/member/member/login")
     public R login(@RequestBody UserLoginVo userLoginVo);
+
+    /* 社交登录/注册 */
+    @PostMapping("/member/member/oauth2/login")
+    public R oauthLogin(@RequestBody JSONObject jsonObject);
 }

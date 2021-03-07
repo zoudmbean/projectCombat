@@ -1,5 +1,8 @@
 server:
   port: 20000
+  servlet:
+    session:
+      timeout: 30  # 默认30分钟
 
 spring:
   application:
@@ -17,4 +20,6 @@ spring:
     host: 192.168.56.10
     #password:
     port: 6379    #  默认端口号
+  session:
+    store-type: redis # 配置session的保存类型为redis
 

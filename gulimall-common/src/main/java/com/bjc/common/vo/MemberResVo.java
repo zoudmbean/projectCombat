@@ -1,12 +1,11 @@
-package com.bjc.gulimall.member.entity;
+package com.bjc.common.vo;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
-import lombok.experimental.Accessors;
 
 /**
  * 会员
@@ -17,14 +16,13 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-@TableName("ums_member")
-public class MemberEntity implements Serializable {
+@ToString
+public class MemberResVo implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * id
 	 */
-	@TableId
 	private Long id;
 	/**
 	 * 会员等级id
@@ -37,7 +35,7 @@ public class MemberEntity implements Serializable {
 	/**
 	 * 密码
 	 */
-	private String password;
+	transient private String password;
 	/**
 	 * 昵称
 	 */

@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -138,6 +139,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @EnableFeignClients(basePackages = "com.bjc.gulimall.product.feign")        // 商品服务开启远程调用服务功能并指定feign接口位置（注意：即使不指定也可以扫描到有@FeignClient注解的远程服务接口）
 @EnableDiscoveryClient
 @SpringBootApplication
+@EnableRedisHttpSession
 public class GulimallProductApplication {
 
     public static void main(String[] args) {

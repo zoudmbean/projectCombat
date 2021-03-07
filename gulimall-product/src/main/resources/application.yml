@@ -20,6 +20,8 @@ spring:
     host: 192.168.56.10
     #password:
     port: 6379    #  默认端口号
+  session:
+    store-type: redis
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml   # 不配置默认就是这个目录
@@ -33,5 +35,6 @@ server:
 logging:
   level:
     com.bjc.gulimall: debug
+
 
 

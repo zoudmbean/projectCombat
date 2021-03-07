@@ -4,6 +4,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.bjc.common.constant.AuthServerConstant;
 import com.bjc.common.enums.BizCodeEnume;
 import com.bjc.common.utils.R;
+import com.bjc.common.vo.MemberResVo;
 import com.bjc.gulimall.auth.feign.MemberFeignService;
 import com.bjc.gulimall.auth.feign.ThirdPartFeignService;
 import com.bjc.gulimall.auth.vo.UserLoginVo;
@@ -20,6 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.Collections;
@@ -137,13 +139,12 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String login(@Valid UserLoginVo user,BindingResult result,RedirectAttributes model){
+    public String login(@Valid UserLoginVo user, BindingResult result, RedirectAttributes model, HttpSession session){
         Map<String, String> errMap = new HashMap<>();
         if(!CollectionUtils.isEmpty(result.getFieldErrors())){
             result.getFieldErrors().stream().forEach(fieldError -> {
                 String field = fieldError.getField();
                 fieldError.getDefaultMessage();
-
             });
 
             errMap = result.getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage, (e1, e2) -> e2));
@@ -159,7 +160,20 @@ public class LoginController {
             model.addFlashAttribute("errors",errMap);
             return "redirect:http://auth.gulimall.com/login.html";
         }
+
+        // 保存登录用户到session
+        MemberResVo loginUser = login.getData("data", new TypeReference<MemberResVo>() {});
+        session.setAttribute(AuthServerConstant.LOGIN_USER,loginUser);
         // 重定向到商城首页
         return "redirect:http://gulimall.com";
+    }
+
+    @GetMapping("/login.html")
+    public String pageLogin(HttpSession session){
+        Object user = session.getAttribute(AuthServerConstant.LOGIN_USER);
+        if(null != user){
+            return "redirect:http://gulimall.com";
+        }
+        return "login";
     }
 }

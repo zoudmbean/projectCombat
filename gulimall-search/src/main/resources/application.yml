@@ -7,6 +7,13 @@ spring:
     name: gulimall-search
   thymeleaf:
     cache: false
+  session:
+    store-type: redis
+  redis:
+    host: 192.168.56.10
+    #password:
+    port: 6379    #  默认端口号
 server:
   port: 12000
+
 
