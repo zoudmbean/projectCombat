@@ -40,6 +40,12 @@ public class GulimallProductApplicationTests {
     SkuSaleAttrValueDao skuSaleAttrValueDao;
 
     @Test
+    public void test05(){
+        List<String> r = skuSaleAttrValueDao.getSkuSaleAttrValuesAsStringList(2L);
+        System.out.println(r);
+    }
+
+    @Test
     public void test04(){
         List<ItemSaleAttrVo> saleAttrsBySpuId = skuSaleAttrValueDao.getSaleAttrsBySpuId(6L);
         System.out.println(saleAttrsBySpuId);

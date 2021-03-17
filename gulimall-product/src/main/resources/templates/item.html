@@ -59,7 +59,7 @@
 						<ul class="header_ul_right">
 							<li style="width: 150px;border: 0;">
 								<a href="http://auth.gulimall.com/login.html" class="aa" th:if="${session.loginUser == null}">你好，请登录</a>
-								<a th:else  href="" onclick="javascript:;"><span>你好，[[${session.loginUser.nickname}]]</span></a>
+								<a th:if="${session.loginUser != null}"  href="" onclick="javascript:;"><span>你好，[[${session.loginUser.nickname}]]</span></a>
 							</li>
 							<li th:if="${session == null || session.loginUser == null}">
 								<a href="http://auth.gulimall.com/reg.html" class="li_2" style="color: red;">免费注册</a>
@@ -613,7 +613,7 @@
 
 						<div class="box-btns clear">
 							<div class="box-btns-one">
-								<input type="text" name="" id="" value="1" />
+								<input type="text" name="" id="numInput" value="1" />
 								<div class="box-btns-one1">
 
 									<div>
@@ -630,7 +630,8 @@
 								</div>
 							</div>
 							<div class="box-btns-two">
-								<a href="http://cart.gulimall.com/addToCart">
+								<!--<a href="http://cart.gulimall.com/addToCart">-->
+								<a href="#" id="addToCartA" th:attr="skuId=${item.info.skuId}">
 									加入购物车
 								</a>
 							</div>
@@ -1305,6 +1306,14 @@
 			$(".sku_attr_value").parent().css({border:'solid 1px #CCC'});
 			$("a[class='sku_attr_value checked']").parent().css({border:'solid 1px red'});
 
+		});
+
+		$("#addToCartA").click(function(){
+			// 获取skuId，该值用了一个自定义属性存储，所以使用attr来获取
+			let skuId = $(this).attr("skuId");
+			let num = $("#numInput").val();
+			location.href = `http://cart.gulimall.com/addToCart?skuId=${skuId}&num=${num}`;
+			return false;
 		});
 	</script>
 

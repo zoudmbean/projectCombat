@@ -25,7 +25,7 @@ public class CartItem {
 
     // 计算当前项的总价
     public BigDecimal getTotalPrice() {
-        BigDecimal decimal = Optional.ofNullable(this.price).orElse(new BigDecimal("0")).multiply(new BigDecimal(Optional.ofNullable(this.price).orElse(new BigDecimal("0")) + ""));
+        BigDecimal decimal = Optional.ofNullable(this.price).orElse(new BigDecimal("0")).multiply(new BigDecimal(Optional.ofNullable(this.count).orElse(0) + ""));
         return decimal;
     }
 }

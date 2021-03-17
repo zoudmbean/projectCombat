@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
@@ -18,6 +19,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
+@ToString
 @TableName("oms_order")
 public class OrderEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
