@@ -1,15 +1,18 @@
 package com.bjc.gulimall.ware.controller;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 // import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.alibaba.fastjson.JSONObject;
+import com.bjc.common.enums.BizCodeEnume;
+import com.bjc.gulimall.ware.vo.LockStockResult;
+import com.bjc.gulimall.ware.vo.WareSkuLockVo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.bjc.gulimall.ware.entity.WareInfoEntity;
 import com.bjc.gulimall.ware.service.WareInfoService;
@@ -27,9 +30,27 @@ import com.bjc.common.utils.R;
  */
 @RestController
 @RequestMapping("ware/wareinfo")
+@Slf4j
 public class WareInfoController {
     @Autowired
     private WareInfoService wareInfoService;
+
+    @PostMapping("/lock/order")
+    public R orderlock(@RequestBody WareSkuLockVo vo){
+        try {
+            Boolean isLocked = wareInfoService.orderlock(vo);
+            return R.ok();
+        } catch (Exception e) {
+            log.error("库存锁定失败",e);
+            return R.error(BizCodeEnume.NO_STOCK_EXCEPTION.getCode(),BizCodeEnume.NO_STOCK_EXCEPTION.getMsg());
+        }
+    }
+
+    @GetMapping("/getFace/{id}")
+    public R getFace(@PathVariable("id") Long id){
+        JSONObject fare = wareInfoService.getFace(id);
+        return R.ok().setData(fare);
+    }
 
     /**
      * 列表

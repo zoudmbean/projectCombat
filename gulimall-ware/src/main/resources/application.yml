@@ -10,6 +10,9 @@ spring:
     nacos:
       discovery:                          # 加入注册中心
         server-addr: 127.0.0.1:8848
+    alibaba:
+      seata:
+        tx-service-group: fsp-tx-group
   jackson:
     date-format: yyyy-MM-dd HH:mm:SS
 
@@ -25,4 +28,5 @@ server:
 logging:
   level:
     com.bjc.gulimall: debug
+
 

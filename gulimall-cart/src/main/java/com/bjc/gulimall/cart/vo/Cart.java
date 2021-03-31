@@ -36,7 +36,7 @@ public class Cart {
 
     public BigDecimal getTotalAmount() {
         if(!CollectionUtils.isEmpty(items)){
-            return items.stream().map(CartItem::getTotalPrice).reduce(new BigDecimal("0"),(item1, item2) -> item1.add(item2));
+            return items.stream().filter(CartItem::getCheck).map(CartItem::getTotalPrice).reduce(new BigDecimal("0"),(item1, item2) -> item1.add(item2));
         }
         return new BigDecimal("0");
     }

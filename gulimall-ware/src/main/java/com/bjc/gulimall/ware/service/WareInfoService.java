@@ -1,9 +1,13 @@
 package com.bjc.gulimall.ware.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.bjc.common.utils.PageUtils;
 import com.bjc.gulimall.ware.entity.WareInfoEntity;
+import com.bjc.gulimall.ware.vo.LockStockResult;
+import com.bjc.gulimall.ware.vo.WareSkuLockVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,5 +20,9 @@ import java.util.Map;
 public interface WareInfoService extends IService<WareInfoEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    JSONObject getFace(Long id);
+
+    Boolean orderlock(WareSkuLockVo vo);
 }
 

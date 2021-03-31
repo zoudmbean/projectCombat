@@ -3,6 +3,7 @@ package com.bjc.gulimall.product;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -138,7 +139,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @MapperScan("com.bjc.gulimall.product.dao")
 @EnableFeignClients(basePackages = "com.bjc.gulimall.product.feign")        // 商品服务开启远程调用服务功能并指定feign接口位置（注意：即使不指定也可以扫描到有@FeignClient注解的远程服务接口）
 @EnableDiscoveryClient
-@SpringBootApplication
+@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 @EnableRedisHttpSession
 public class GulimallProductApplication {
 

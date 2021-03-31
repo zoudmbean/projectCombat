@@ -10,6 +10,9 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848   # 注册中心地址
+    alibaba:
+      seata:
+        tx-service-group: fsp-tx-group
   jackson:                            # 日期格式化
     date-format: yyyy-MM-dd HH:mm:SS
   thymeleaf:
@@ -35,6 +38,7 @@ server:
 logging:
   level:
     com.bjc.gulimall: debug
+
 
 
 

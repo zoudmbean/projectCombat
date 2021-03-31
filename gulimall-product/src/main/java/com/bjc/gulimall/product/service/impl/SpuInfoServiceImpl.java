@@ -13,6 +13,7 @@ import com.bjc.gulimall.product.feign.SearchFeignService;
 import com.bjc.gulimall.product.feign.WarefeignService;
 import com.bjc.gulimall.product.service.*;
 import com.bjc.gulimall.product.vo.*;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -83,6 +84,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     }
 
     // TODO 还有事务相关高级用法没做
+    @GlobalTransactional
     @Transactional
     @Override
     public void saveSpuInfo(SpuSaveVo vo) {
@@ -330,6 +332,16 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             *       }
             * */
         }
+    }
+
+    // 根据skuId查询spu
+    @Override
+    public SpuInfoEntity getSpuInfoBySkuId(Long skuId) {
+        QueryWrapper<SpuInfoEntity> wrapper = new QueryWrapper<>();
+        SkuInfoEntity skuinfo = skuInfoService.getById(skuId);
+        Long spuId = skuinfo.getSpuId();
+        SpuInfoEntity spuInfoEntity = this.baseMapper.selectById(spuId);
+        return spuInfoEntity;
     }
 
 }

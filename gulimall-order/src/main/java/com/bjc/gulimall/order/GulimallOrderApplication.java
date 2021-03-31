@@ -1,9 +1,13 @@
 package com.bjc.gulimall.order;
 
+import com.alibaba.cloud.seata.GlobalTransactionAutoConfiguration;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /*
 * RabbitMq使用步骤
@@ -43,10 +47,24 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
                 System.out.println("接收到的消息：" + msg + "  类型：" + msg.getClass());
             }
             注意；该注解只能标注在方法上
+
+    seata控制分布式事务使用步骤：
+    *   1） 每一个微服务先必须创建undo_log表
+    *   2）安装事务协调器：seata-server:https://github.com/seata/seata/releases
+    *   3）引入seata依赖
+    *   4）启动seata-server
+    *       registry.conf：注册中心配置  修改type为nacos
+    *   5）开启全局事务：只需要使用一个 @GlobalTransactional 注解在业务方法上
+    *   6）所有想要用到分布式事务的微服务使用seata DataSourceProxy代理自己数据源
+    *       因为 Seata 通过代理数据源实现分支事务，如果没有注入，事务无法成功回滚
+    *   7）每个微服务都需要导入seata两个配置文件
+    *
 * */
 @EnableRabbit
+@EnableRedisHttpSession
 @EnableDiscoveryClient
-@SpringBootApplication
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, GlobalTransactionAutoConfiguration.class})
+@EnableFeignClients("com.bjc.gulimall.order.feign")
 public class GulimallOrderApplication {
 
     public static void main(String[] args) {

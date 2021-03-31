@@ -65,8 +65,10 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemDao, OrderItemEnt
                 // 参数：long deliveryTag  当前消息的标签
                 //      boolean multiple   是否批量模式
                 //      boolean requeue    是否重新入队  true 表示拒收之后发回服务器重新入队  false 表示拒收之后直接丢弃消息
-                channel.basicNack(deliveryTag,false,true);
+                // channel.basicNack(deliveryTag,false,true);
 
+                // 测试完成了，签收
+                channel.basicAck(deliveryTag,false);
                 // 方式二：
                 // 参数：long deliveryTag,  boolean requeue
                 //channel.basicReject(deliveryTag,true);
@@ -79,6 +81,12 @@ public class OrderItemServiceImpl extends ServiceImpl<OrderItemDao, OrderItemEnt
     @RabbitHandler
     public void recievwMsg(Message msg, OrderEntity orderEntity, Channel channel){
         System.out.println("接收到的消息：" + msg + "  类型：" + msg.getClass() + "   orderEntity = " + orderEntity);
+        long deliveryTag = msg.getMessageProperties().getDeliveryTag();
+        try {
+            channel.basicAck(deliveryTag,false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

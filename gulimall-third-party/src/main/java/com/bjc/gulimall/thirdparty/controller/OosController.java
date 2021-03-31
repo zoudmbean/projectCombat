@@ -22,16 +22,17 @@ import java.util.Map;
 @RestController
 public class OosController {
 
-    @Autowired
+    // 自动注入失效，应该是账号没钱了，注释掉
+    // @Autowired
     private OSS ossClient;
 
-    @Value("${spring.cloud.alicloud.oss.endpoint}")
+    //@Value("${spring.cloud.alicloud.oss.endpoint}")
     private String endpoint;
 
-    @Value("${spring.cloud.alicloud.access-key}")
+    //@Value("${spring.cloud.alicloud.access-key}")
     private String accessId;
 
-    @Value("${spring.cloud.alicloud.oss.bucket}")
+    //@Value("${spring.cloud.alicloud.oss.bucket}")
     private String bucket;
 
     @RequestMapping("/oss/policy")

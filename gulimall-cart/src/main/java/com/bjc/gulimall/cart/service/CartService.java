@@ -3,6 +3,8 @@ package com.bjc.gulimall.cart.service;
 import com.bjc.gulimall.cart.vo.Cart;
 import com.bjc.gulimall.cart.vo.CartItem;
 
+import java.util.List;
+
 public interface CartService {
     CartItem addToCart(Long skuId, Integer num);
 
@@ -17,5 +19,7 @@ public interface CartService {
     void countItem(Long skuId, Integer num);
 
     void delItem(Long skuId);
+
+    List<CartItem> getUserCartItems();
 
 }
