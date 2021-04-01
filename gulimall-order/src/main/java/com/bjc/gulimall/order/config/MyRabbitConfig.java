@@ -49,6 +49,8 @@ public class MyRabbitConfig {
             // cause：如果失败，失败的原因
             @Override
             public void confirm(CorrelationData correlationData, boolean ack, String cause) {
+                // 服务器收到消息了
+                // 修改消息的状态
                 System.out.println(correlationData + "   ack = " + ack + "  cause = " + cause);
             }
         });
@@ -65,6 +67,7 @@ public class MyRabbitConfig {
             */
             @Override
             public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingkey) {
+                // 报错误了，修改数据库，当前消息的状态
                 System.out.println("fail: message = " + message + "   replyCode = " + replyCode + "  replyText = " + replyText + "   exchange = " + exchange + "   routingkey = " + routingkey);
             }
         });
