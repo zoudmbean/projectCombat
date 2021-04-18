@@ -1,14 +1,9 @@
 package com.bjc.gulimall.order.config;
 
-import com.bjc.gulimall.order.entity.OrderEntity;
-import com.rabbitmq.client.Channel;
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -106,6 +101,25 @@ public class MyMQConfig {
                 Binding.DestinationType.QUEUE,
                 "order-event-exchange",
                 "order.release.other.#",
+                null);
+    }
+
+
+    /*
+    * 添加秒杀服务的队列以及其绑定关系
+    * */
+    @Bean
+    public Queue orderSeckillOrderQueue(){
+        Queue queue = new Queue("order.seckill.order.queue", true, false, false);
+        return queue;
+    }
+    // 添加绑定关系
+    @Bean
+    public Binding orderSeckillQueueBinding(){
+        return new Binding("order.seckill.order.queue",
+                Binding.DestinationType.QUEUE,
+                "order-event-exchange",
+                "order.seckill.order",
                 null);
     }
 }

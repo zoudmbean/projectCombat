@@ -24,6 +24,13 @@ spring:
           filters:
             - RewritePath=/api/(?<segment>.*),/$\{segment}       # 表示将/api后面的内容替换成/$\{segment}  相当于是去掉api
 
+        - id: coupon_route
+          uri: lb://gulimall-coupon     # lb://gulimall-admin  表示负载均衡到gulimall-coupon服务  coupon
+          predicates:
+            - Path=/api/coupon/**             # 路径匹配  这句话的意思是，从管理系统发出的任意带/api/coupon的请求都路由到coupon_route
+          filters:
+            - RewritePath=/api/(?<segment>.*),/$\{segment}       # 表示将/api后面的内容替换成/$\{segment}  相当于是去掉api
+
         - id: third_party_route
           uri: lb://gulimall-third-party     # lb://gulimall-third-party  表示负载均衡到gulimall-third-party服务
           predicates:
@@ -76,6 +83,11 @@ spring:
           uri: lb://gulimall-order
           predicates:
             - Host=order.gulimall.com   #  主机host断言  任意的带gulimall.com的域名
+
+        - id: gulimall_seckill_route
+          uri: lb://gulimall-seckill
+          predicates:
+            - Host=seckill.gulimall.com   #  主机host断言  任意的带gulimall.com的域名
 
 
 # 定义一个规则，只要是前端发出的请求，都带上/api

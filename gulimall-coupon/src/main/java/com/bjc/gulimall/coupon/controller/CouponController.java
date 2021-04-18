@@ -30,16 +30,6 @@ public class CouponController {
     @Autowired
     private CouponService couponService;
 
-    @Value("${coupon.user.name}")
-    private String name;
-    @Value("${coupon.user.age}")
-    private int age;
-
-    @GetMapping("/configTest")
-    public R configTest(){
-        return R.ok("name:" + name + "  age:" + age);
-    }
-
     @GetMapping("/member/list")
     public R memberCoupons(){
         return R.ok().put("coupons",Arrays.asList(new CouponEntity().setCouponName("满100减20")));

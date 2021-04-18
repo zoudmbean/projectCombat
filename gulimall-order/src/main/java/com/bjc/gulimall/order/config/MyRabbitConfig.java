@@ -1,6 +1,7 @@
 package com.bjc.gulimall.order.config;
 
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -8,6 +9,7 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import javax.annotation.PostConstruct;
 
@@ -18,8 +20,23 @@ import javax.annotation.PostConstruct;
 @Configuration
 public class MyRabbitConfig {
 
-    @Autowired
+    /*
+    * 如果一个类只有一个有参构造器，那么这个参数就会从容器中获取
+    *   不用 @Autowired 解决循环依赖
+    * */
+    // @Autowired
     RabbitTemplate rabbitTemplate;
+
+    // TODO  RabbitTemplate其他配置需要设置
+    @Primary
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory factory){
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(factory);
+        this.rabbitTemplate = rabbitTemplate;
+        rabbitTemplate.setMessageConverter(messageConverter());
+        initRabbitTemplate();
+        return rabbitTemplate;
+    }
 
     /* 定制rabbitTemplate
     *       1. 服务收到消息就回调
@@ -40,7 +57,7 @@ public class MyRabbitConfig {
     *               channel.basicNack(deliveryTag,false,true);  拒签，业务失败，拒签
     *
     * */
-    @PostConstruct  // 该注解的意思是，在MyRabbitConfig的构造器创建完成之后，调用注解所在的方法
+    // @PostConstruct  // 该注解的意思是，在MyRabbitConfig的构造器创建完成之后，调用注解所在的方法
     public void initRabbitTemplate(){
         // 设置确认回调
         rabbitTemplate.setConfirmCallback(new RabbitTemplate.ConfirmCallback() {

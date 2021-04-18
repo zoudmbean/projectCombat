@@ -1,6 +1,7 @@
 package com.bjc.gulimall.order.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.bjc.common.to.mq.SeckillOrderTo;
 import com.bjc.common.utils.PageUtils;
 import com.bjc.gulimall.order.entity.OrderEntity;
 import com.bjc.gulimall.order.vo.OrderConfirmVo;
@@ -28,6 +29,8 @@ public interface OrderService extends IService<OrderEntity> {
     OrderEntity getOrderStatusByOrderSn(String orderSn);
 
     void closeOrder(OrderEntity entity);
+
+    void createSeckillOrder(SeckillOrderTo seckillOrder);
 
 }
 

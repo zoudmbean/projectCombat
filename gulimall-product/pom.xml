@@ -65,6 +65,11 @@
             <!-- 可选的不能忘记了 -->
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
 
         <!-- boot整合redis -->
         <dependency>

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.bjc.common.enums.OrderStatusEnum;
 import com.bjc.common.exception.NoStockException;
 import com.bjc.common.to.mq.OrderTo;
+import com.bjc.common.to.mq.SeckillOrderTo;
 import com.bjc.common.utils.R;
 import com.bjc.common.vo.MemberResVo;
 import com.bjc.gulimall.order.constant.OrderConstant;
@@ -160,87 +161,87 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     /* 下单 */
     // @GlobalTransactional    // 其实这里不适合使用AT模式，下单属于典型的高并发场景，不适合AT模式，AT模式适用于一些简单的分布式事务  所以注释掉，利用MQ使用最终一致性方案
-    @Transactional
-    @Override
-    public SubmitOrderResponseVo submitOrder(OrderSubmitVo vo) {
-        // 保存到当前线程
-        confirmVoThreadLocal.set(vo);
+@Transactional
+@Override
+public SubmitOrderResponseVo submitOrder(OrderSubmitVo vo) {
+    // 保存到当前线程
+    confirmVoThreadLocal.set(vo);
 
-        SubmitOrderResponseVo resVo = new SubmitOrderResponseVo();
-        resVo.setCode(0); // 默认设置0 表示锁定库存成功
-        // 从session中获取当前用户
-        MemberResVo memberResVo = LoginUserInterceptor.loginUser.get();
+    SubmitOrderResponseVo resVo = new SubmitOrderResponseVo();
+    resVo.setCode(0); // 默认设置0 表示锁定库存成功
+    // 从session中获取当前用户
+    MemberResVo memberResVo = LoginUserInterceptor.loginUser.get();
 
-        // 1.验证令牌【 从redis中获取令牌与删除令牌必须保证原子性】
-        // 注意；脚本返回的值是0或者1  0表示令牌删除了不存在或者删除失败  1表示调用了删除且删除成功了  也就是说0代表令牌校验失败
-        String luaScript = "if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
-        String token = vo.getOrderToken();
+    // 1.验证令牌【 从redis中获取令牌与删除令牌必须保证原子性】
+    // 注意；脚本返回的值是0或者1  0表示令牌删除了不存在或者删除失败  1表示调用了删除且删除成功了  也就是说0代表令牌校验失败
+    String luaScript = "if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
+    String token = vo.getOrderToken();
 
-        // execute参数;  参数一：脚本对象  参数二：redis的key  参数三：要对比的值
-        Long res = redisTemplate.execute(new DefaultRedisScript<Long>(luaScript,Long.class), Arrays.asList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberResVo.getId()),token);
-        if(res == 1L){
-            // 令牌验证成功
-            // 去创建订单、验令牌、验价格、锁定库存
-            OrderCreateTo order = createOrder();
-            // 2. 验价
-            BigDecimal orderPayprice = order.getOrder().getPayAmount();
-            BigDecimal webPrice = vo.getPayprice();
-            if(Math.abs(orderPayprice.subtract(webPrice).doubleValue()) < 0.01){
-                // 金额对比成功 保存订单到数据库
-                saveOrder(order);
+    // execute参数;  参数一：脚本对象  参数二：redis的key  参数三：要对比的值
+    Long res = redisTemplate.execute(new DefaultRedisScript<Long>(luaScript,Long.class), Arrays.asList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberResVo.getId()),token);
+    if(res == 1L){
+        // 令牌验证成功
+        // 去创建订单、验令牌、验价格、锁定库存
+        OrderCreateTo order = createOrder();
+        // 2. 验价
+        BigDecimal orderPayprice = order.getOrder().getPayAmount();
+        BigDecimal webPrice = vo.getPayprice();
+        if(Math.abs(orderPayprice.subtract(webPrice).doubleValue()) < 0.01){
+            // 金额对比成功 保存订单到数据库
+            saveOrder(order);
 
-                // 锁定库存  有异常，就回滚
-                WareSkuLockVo wareLock = new WareSkuLockVo();
-                wareLock.setOrderSn(order.getOrder().getOrderSn());
-                List<OrderItemVo> locks = order.getItems().stream().map(item -> {
-                    OrderItemVo orderItemVo = new OrderItemVo();
-                    orderItemVo.setSkuId(item.getSkuId());
-                    orderItemVo.setCount(item.getSkuQuantity());
-                    orderItemVo.setTitle(item.getSkuName());
-                    return orderItemVo;
-                }).collect(Collectors.toList());
-                wareLock.setLocks(locks);
+            // 锁定库存  有异常，就回滚
+            WareSkuLockVo wareLock = new WareSkuLockVo();
+            wareLock.setOrderSn(order.getOrder().getOrderSn());
+            List<OrderItemVo> locks = order.getItems().stream().map(item -> {
+                OrderItemVo orderItemVo = new OrderItemVo();
+                orderItemVo.setSkuId(item.getSkuId());
+                orderItemVo.setCount(item.getSkuQuantity());
+                orderItemVo.setTitle(item.getSkuName());
+                return orderItemVo;
+            }).collect(Collectors.toList());
+            wareLock.setLocks(locks);
 
-                // TODO 远程库存锁定
-                // 库存成功了，但是因为网络超时，订单回滚了，库存还未回滚  可以考虑seata，但是其默认的AT模式不适合高并发场景
-                // 为了保证高并发，库存服务自己回滚，可以发消息给库存服务。
-                // 库存服务本身可以使用自动解锁模式
-                R r = wmsFeignService.orderlock(wareLock);
-                if(r.getCode() == 0){
-                    // 库存锁定成功
-                    resVo.setOrder(order.getOrder());
-                    // TODO 模拟远程异常
-                    // int a = 1/0;    // 订单回滚，库存没回滚
-                    // 订单创建成功，发送消息给MQ
-                    rabbitTemplate.convertAndSend("order-event-exchange","order.create.order",order.getOrder());
-                    return resVo;
-                } else {
-                    // 锁定失败
-                    resVo.setCode(3);  // 库存出现问题
-                    // return resVo;
-                    throw new NoStockException();
-                    // return resVo;
-                }
-            } else {
-                resVo.setCode(2);   // 表示金额对比失败
+            // TODO 远程库存锁定
+            // 库存成功了，但是因为网络超时，订单回滚了，库存还未回滚  可以考虑seata，但是其默认的AT模式不适合高并发场景
+            // 为了保证高并发，库存服务自己回滚，可以发消息给库存服务。
+            // 库存服务本身可以使用自动解锁模式
+            R r = wmsFeignService.orderlock(wareLock);
+            if(r.getCode() == 0){
+                // 库存锁定成功
+                resVo.setOrder(order.getOrder());
+                // TODO 模拟远程异常
+                // int a = 1/0;    // 订单回滚，库存没回滚
+                // 订单创建成功，发送消息给MQ
+                rabbitTemplate.convertAndSend("order-event-exchange","order.create.order",order.getOrder());
                 return resVo;
+            } else {
+                // 锁定失败
+                resVo.setCode(3);  // 库存出现问题
+                // return resVo;
+                throw new NoStockException();
+                // return resVo;
             }
-
         } else {
-            resVo.setCode(1);
+            resVo.setCode(2);   // 表示金额对比失败
             return resVo;
         }
-        /**  这种方式不能保证原子性，因此要使用上面的脚本方式以保证原子性操作
-        String redisToken = redisTemplate.opsForValue().get(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberResVo.getId());
-        if(StringUtils.equalsIgnoreCase(token,redisToken)){
-            // 令牌验证通过
 
-        } else{
-            // 不通过
-
-        }
-         */
+    } else {
+        resVo.setCode(1);
+        return resVo;
     }
+    /**  这种方式不能保证原子性，因此要使用上面的脚本方式以保证原子性操作
+    String redisToken = redisTemplate.opsForValue().get(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberResVo.getId());
+    if(StringUtils.equalsIgnoreCase(token,redisToken)){
+        // 令牌验证通过
+
+    } else{
+        // 不通过
+
+    }
+     */
+}
 
     // 根据订单号查询订单状态
     @Override
@@ -271,6 +272,27 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
             }
         }
+    }
+
+    /* 秒杀单创建 */
+    @Override
+    public void createSeckillOrder(SeckillOrderTo seckillOrder) {
+        // TODO 保存订单
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setOrderSn(seckillOrder.getOrderSn());
+        orderEntity.setMemberId(seckillOrder.getMemberId());
+        orderEntity.setStatus(OrderStatusEnum.CREATE_NEW.getCode());
+        BigDecimal multiply = seckillOrder.getSeckillPrice().multiply(new BigDecimal(seckillOrder.getNum() + ""));
+        orderEntity.setPayAmount(multiply);
+        this.save(orderEntity);
+
+        // TODO 保存订单项信息
+        OrderItemEntity itemEntity = new OrderItemEntity();
+        itemEntity.setOrderSn(seckillOrder.getOrderSn());
+        itemEntity.setRealAmount(multiply);
+        itemEntity.setSkuQuantity(seckillOrder.getNum());
+        // TODO 获取当前sku详细信息  省略
+        orderItemService.save(itemEntity);
     }
 
     // 保存订单数据

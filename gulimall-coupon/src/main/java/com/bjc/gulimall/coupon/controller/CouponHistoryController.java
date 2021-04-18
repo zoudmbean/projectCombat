@@ -5,6 +5,7 @@ import java.util.Map;
 
 // import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,7 @@ import com.bjc.common.utils.R;
 @RequestMapping("coupon/couponhistory")
 public class CouponHistoryController {
     @Autowired
+    @Qualifier("couponHistoryService")
     private CouponHistoryService couponHistoryService;
 
     /**

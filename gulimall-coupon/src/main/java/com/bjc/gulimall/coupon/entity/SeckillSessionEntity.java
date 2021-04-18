@@ -1,10 +1,13 @@
 package com.bjc.gulimall.coupon.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -20,6 +23,9 @@ import lombok.experimental.Accessors;
 @TableName("sms_seckill_session")
 public class SeckillSessionEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
+
+	@TableField(exist = false)
+	private List<SeckillSkuRelationEntity> relationSkus;
 
 	/**
 	 * id
